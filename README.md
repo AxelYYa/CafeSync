@@ -1,44 +1,92 @@
-# CaféSync
+<div align="center">
 
-**Sistema web para la operación integral de una cafetería**
+# ☕ CaféSync
+### Plataforma web para coordinar la operación de una cafetería
 
-> Documento de análisis, definición y planificación del proyecto.
+**Punto de Venta · Pantallas de Preparación · Inventario por Receta · Asistencia · Tareas**
 
-**Institución:** Universidad Tecnológica de Torreón  
-**Programa educativo:** Ingeniería en Desarrollo y Gestión de Software  
-**Grado y sección:** 9A TN  
-**Estudiante:** Axel Espinoza Blanco (único integrante)  
-**Profesor:** Jesús Del Toro Robledo  
-**Fecha del documento base:** 12 de octubre de 2026
+[![Laravel](https://img.shields.io/badge/Laravel-framework-FF2D20?style=flat-square&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-backend-777BB4?style=flat-square&logo=php&logoColor=white)](https://www.php.net)
+[![Blade](https://img.shields.io/badge/Views-Blade-7C3AED?style=flat-square)](https://laravel.com/docs/blade)
+[![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com)
+[![Git](https://img.shields.io/badge/Version_Control-Git-F05032?style=flat-square&logo=git&logoColor=white)](https://git-scm.com)
+
+</div>
+
+> [!NOTE]
+> **Estado del documento:** especificación y planificación técnica. Las funciones, diagramas y tablas descritos aquí representan el diseño previsto; no deben considerarse implementados o probados hasta que exista evidencia del desarrollo.
+
+| Ficha del proyecto | Información |
+| :--- | :--- |
+| **Institución** | Universidad Tecnológica de Torreón |
+| **Programa educativo** | Ingeniería en Desarrollo y Gestión de Software |
+| **Grado y sección** | 9A TN |
+| **Estudiante** | Axel Espinoza Blanco (desarrollo individual) |
+| **Profesor** | Jesús Del Toro Robledo |
+| **Sistema** | CaféSync — gestión operativa de cafetería |
+| **Última actualización del README** | 19 de octubre de 2026 |
 
 ---
 
+## ✦ Resumen del proyecto
 
-## Contenido del documento
+CaféSync es una propuesta de aplicación web para integrar en un solo flujo la toma de pedidos, la distribución de productos a las estaciones de preparación, la consulta de recetas, el control de ingredientes, el registro de asistencia y la asignación de tareas por turno. La plataforma se plantea para una cafetería que puede recibir solicitudes de mostrador, Drive-Thru y delivery.
 
+El stack definido para el desarrollo es **Laravel + Blade + MySQL**. Laravel gestionará las rutas, la validación, la autenticación, la autorización y las reglas de negocio; Blade compondrá las interfaces web; MySQL conservará las relaciones y el historial operativo.
 
-> **Nota:** La propuesta se organiza desde la necesidad operativa de la cafetería hasta los elementos que permitirán desarrollar, comprobar y presentar una primera versión funcional. Los requisitos se consideran objetivos de diseño y validación; su inclusión en este documento no significa que ya estén implementados.
+| Módulo | Propósito |
+| :--- | :--- |
+| **POS** | Capturar órdenes, productos, cantidades y canal de origen. |
+| **KDS** | Mostrar en cada estación los productos que debe preparar y permitir actualizar estados. |
+| **Help Mode** | Consultar instrucciones y cantidades de recetas desde la preparación. |
+| **Inventario** | Descontar ingredientes por receta y conservar movimientos trazables. |
+| **Asistencia** | Registrar entradas y salidas con PIN y hora del servidor. |
+| **Tareas** | Asignar listas de limpieza por zona o turno y verificar su cumplimiento. |
 
+### Decisiones técnicas ya definidas
 
-| 1 Introducción y contexto del proyecto | 12 Modelo conceptual de datos |
-| --- | --- |
-| 2 Planteamiento del problema | 13 Arquitectura, tecnologías y patrones |
-| 3 Justificación e impacto esperado | 14 Análisis de riesgos |
-| 4 Objetivos del proyecto | 15 Metodología y responsabilidades |
-| 5 Alcance funcional | 16 Desglose de tareas y estimaciones |
-| 6 Limitaciones y elementos fuera de alcance | 17 Cronograma de seis semanas |
-| 7 Producto Mínimo Viable (MVP) | 18 Diseño de interfaz y contenidos |
-| 8 Usuarios, roles y escenarios de operación | 19 Plan de pruebas y aceptación |
-| 9 Requisitos funcionales | 20 Entregables y criterios de éxito |
-| 10 Requisitos no funcionales | 21 Glosario de términos |
-| 11 Reglas de negocio y flujos operativos |  |
+- **Backend y aplicación web:** Laravel (PHP).
+- **Vistas:** Blade, con HTML/CSS y JavaScript complementario cuando se requiera interacción en pantalla.
+- **Base de datos:** MySQL.
+- **Control de versiones y repositorio:** Git y GitHub.
+- **Arquitectura:** aplicación web cliente-servidor organizada bajo MVC.
+- **Alcance inicial:** un prototipo web para una operación de cafetería; sin integración directa con Rappi/DiDi ni facturación fiscal.
 
+---
 
-### Criterio de lectura
+## 🧭 Contenido
 
+1. [Introducción y contexto](#1-introducción-y-contexto-del-proyecto)
+2. [Planteamiento del problema](#2-planteamiento-del-problema)
+3. [Justificación e impacto](#3-justificación-e-impacto-esperado)
+4. [Objetivos](#4-objetivos-del-proyecto)
+5. [Alcance funcional](#5-alcance-funcional)
+6. [Limitaciones](#6-limitaciones-y-elementos-fuera-de-alcance)
+7. [MVP](#7-producto-mínimo-viable-mvp)
+8. [Usuarios y escenarios](#8-usuarios-roles-y-escenarios-de-operación)
+9. [Requisitos funcionales](#9-requisitos-funcionales)
+10. [Requisitos no funcionales](#10-requisitos-no-funcionales)
+11. [Reglas de negocio](#11-reglas-de-negocio-y-flujos-operativos)
+12. [Modelo conceptual de datos](#12-modelo-conceptual-de-datos)
+13. [Arquitectura, tecnologías y patrones](#13-arquitectura-tecnologías-y-patrones-de-diseño)
+14. [Riesgos](#14-análisis-de-riesgos)
+15. [Metodología y responsabilidades](#15-metodología-y-responsabilidades)
+16. [Tareas y estimaciones](#16-desglose-de-tareas-y-estimaciones)
+17. [Cronograma](#17-cronograma-de-seis-semanas)
+18. [Interfaz y contenidos](#18-diseño-de-interfaz-y-definición-de-contenidos)
+19. [Plan de pruebas](#19-plan-de-pruebas-y-aceptación)
+20. [Entregables y criterios de éxito](#20-entregables-y-criterios-de-éxito)
+21. [Glosario](#21-glosario-de-términos)
+22. [Diseño de base de datos MySQL](#22-diseño-de-base-de-datos-mysql)
+23. [Diccionario de datos](#23-diccionario-de-datos)
+24. [Diagramas complementarios](#24-diagramas-complementarios)
+25. [Git y GitHub](#25-control-de-versiones-git-y-github)
+26. [Flujo de trabajo](#26-flujo-de-trabajo-con-github-flow)
+27. [Configuración y ejecución local](#27-configuración-y-ejecución-local)
+28. [Seguridad e integridad de datos](#28-seguridad-e-integridad-de-datos)
+29. [Referencias técnicas](#29-referencias-técnicas)
 
-Las funciones identificadas como prioritarias P1 corresponden al flujo indispensable del MVP. Las funciones P2 son complementarias y solo deberán incorporarse cuando el proceso principal esté estable. Las entidades de datos, reglas de negocio y controles propuestos sirven como especificación inicial y pueden ajustarse al validar el diseño técnico, sin ampliar de manera automática el alcance comprometido.
-
+---
 
 ## 1. Introducción y contexto del proyecto
 
@@ -486,7 +534,7 @@ La propuesta inicial establece que habrá una base de datos relacional, pero no 
 
 Los importes deben almacenarse con un tipo numérico adecuado para valores monetarios, no como texto. Las cantidades de ingredientes requieren precisión suficiente para medir gramos y mililitros. Las relaciones principales deben protegerse mediante claves y restricciones consistentes, y las operaciones de cierre de venta y descuento de recetas deben tratarse como una unidad lógica para evitar que el sistema guarde una parte del proceso y omita otra.
 
-La selección del motor relacional y el diagrama físico definitivo quedan sujetos a la configuración técnica del proyecto. Antes de iniciar la lógica de inventario, conviene elaborar el diagrama entidad-relación y revisar especialmente el detalle de orden, receta, ingrediente, estación y movimiento de inventario.
+El motor relacional definido para CaféSync es **MySQL**. El diagrama físico propuesto se detalla en el apartado 22 y deberá implementarse mediante migraciones de Laravel. Antes de programar la lógica de inventario, se revisarán especialmente las relaciones entre órdenes, detalles, recetas, ingredientes, estaciones y movimientos de inventario.
 
 
 ## 13. Arquitectura, tecnologías y patrones de diseño
@@ -497,7 +545,7 @@ La selección del motor relacional y el diagrama físico definitivo quedan sujet
 
 Se plantea una arquitectura cliente-servidor: los navegadores de caja, estaciones de preparación y administración se conectan a una aplicación central que ejecuta la lógica de negocio y consulta la base de datos relacional. Este enfoque permite compartir el estado de las órdenes entre dispositivos y aplicar una política común de permisos.
 
-La aplicación se organizará como un proyecto Laravel integrado, con rutas, controladores, modelos, validaciones y vistas web. Se contempla utilizar Docker para mantener una configuración de desarrollo reproducible y reducir diferencias entre el entorno local y una posible instalación de demostración. La interfaz requiere actualizar la información del KDS sin recarga manual; el mecanismo concreto de comunicación en tiempo real deberá confirmarse mediante una prueba técnica temprana.
+La aplicación se organizará como un proyecto **Laravel** integrado, con rutas, controladores, modelos Eloquent, validaciones y vistas **Blade**. La persistencia se realizará en **MySQL** y se administrará mediante migraciones. Docker podrá utilizarse para reproducir el entorno local cuando se prepare la configuración correspondiente. La interfaz KDS requiere actualizarse sin recarga manual; se probará primero el mecanismo de actualización y, si no permite cumplir la meta de tiempo, se evaluará Laravel Broadcasting/Reverb como complemento sin cambiar el stack principal.
 
 
 ### 13.2. Componentes tecnológicos propuestos
@@ -506,9 +554,9 @@ La aplicación se organizará como un proyecto Laravel integrado, con rutas, con
 | Componente | Tecnología o enfoque | Función dentro del proyecto |
 | --- | --- | --- |
 | Aplicación / backend | Laravel (PHP). | Gestionar rutas, sesiones, validaciones, permisos, reglas de venta, recetas e inventario. |
-| Interfaz web | Vistas integradas en Laravel y componentes de interfaz responsivos. | Construir POS, KDS, pantallas de ayuda, asistencia y tareas. |
+| Interfaz web | **Blade** (motor de plantillas de Laravel), HTML, CSS y JavaScript complementario. | Construir POS, KDS, pantallas de ayuda, asistencia y tareas sin mantener un frontend separado. |
 | Actualización del KDS | Mecanismo de actualización sin recarga, por definir tras prueba técnica. | Reflejar nuevas órdenes y estados dentro de la meta de tiempo establecida. |
-| Persistencia | Base de datos relacional; motor específico pendiente de confirmar. | Conservar usuarios, ventas, productos, ingredientes, recetas y registros operativos. |
+| Persistencia | **MySQL** con migraciones de Laravel y Eloquent ORM. | Conservar usuarios, ventas, productos, ingredientes, recetas y registros operativos. |
 | Contenedores | Docker. | Reproducir el entorno de ejecución y facilitar configuración del proyecto. |
 | Control de versiones | Git. | Registrar cambios, recuperar versiones funcionales y apoyar la organización individual. |
 | Pruebas | Casos manuales documentados y, cuando sea viable, pruebas automatizadas. | Verificar reglas de negocio, cálculos, permisos, persistencia y flujo de extremo a extremo. |
@@ -837,6 +885,778 @@ Una vez estable el MVP, podrían estudiarse la integración directa con platafor
 | Transacción | Conjunto de operaciones de datos que deben completarse de forma consistente para evitar resultados parciales. |
 | Idempotencia | Propiedad que evita que repetir la misma operación produzca un efecto duplicado, por ejemplo descontar dos veces los mismos ingredientes. |
 
+## 22. Diseño de base de datos MySQL
+
+### 22.1. Criterios del modelo
+
+El diseño físico propuesto utiliza **MySQL** como gestor relacional. Las tablas se crearán mediante migraciones de Laravel para mantener el esquema versionado junto con el código. Los nombres están en español para facilitar la lectura académica; la tabla `usuarios` requiere que el modelo de autenticación de Laravel se configure de acuerdo con esa nomenclatura.
+
+El modelo se construye alrededor de cinco grupos de información:
+
+1. **Acceso y operación:** roles, usuarios, estaciones y turnos.
+2. **Catálogo y recetas:** productos vendibles, ingredientes y versiones de receta.
+3. **Ventas y preparación:** órdenes, detalles por producto e historial de estados.
+4. **Control de existencias:** saldo actual de cada ingrediente y movimientos de entrada, salida, consumo o ajuste.
+5. **Personal y tareas:** marcas de asistencia, plantillas de tareas y asignaciones por turno, zona o empleado.
+
+> [!IMPORTANT]
+> Este DER es una **propuesta física inicial** coherente con el alcance de CaféSync. Antes de crear todas las migraciones se deben revisar sus columnas y restricciones. El diagrama no representa una base de datos ya creada ni datos existentes.
+
+### 22.2. Diagrama entidad-relación (DER)
+
+```mermaid
+erDiagram
+    ROLES ||--o{ USUARIOS : asigna
+    USUARIOS ||--o{ ORDENES : registra
+    ESTACIONES ||--o{ PRODUCTOS : prepara
+    ESTACIONES ||--o{ DETALLE_ORDENES : recibe
+    ORDENES ||--o{ DETALLE_ORDENES : contiene
+    PRODUCTOS ||--o{ DETALLE_ORDENES : vendido_como
+    PRODUCTOS ||--o{ RECETAS : tiene_versiones
+    USUARIOS o|--o{ RECETAS : crea
+    RECETAS ||--o{ DETALLE_RECETAS : define
+    INGREDIENTES ||--o{ DETALLE_RECETAS : compone
+    RECETAS o|--o{ DETALLE_ORDENES : receta_aplicada
+    INGREDIENTES ||--o{ MOVIMIENTOS_INVENTARIO : registra
+    USUARIOS o|--o{ MOVIMIENTOS_INVENTARIO : autoriza
+    DETALLE_ORDENES o|--o{ MOVIMIENTOS_INVENTARIO : origina
+    USUARIOS ||--o{ ASISTENCIAS : registra
+    TURNOS o|--o{ ASISTENCIAS : clasifica
+    USUARIOS ||--o{ PLANTILLAS_TAREAS : crea
+    PLANTILLAS_TAREAS ||--o{ ASIGNACIONES_TAREAS : genera
+    TURNOS o|--o{ ASIGNACIONES_TAREAS : organiza
+    ESTACIONES o|--o{ ASIGNACIONES_TAREAS : asigna_a_zona
+    USUARIOS o|--o{ ASIGNACIONES_TAREAS : recibe
+    USUARIOS ||--o{ ASIGNACIONES_TAREAS : asigna
+    ORDENES ||--o{ HISTORIAL_ESTADOS_ORDEN : conserva
+    USUARIOS o|--o{ HISTORIAL_ESTADOS_ORDEN : actualiza
+
+    ROLES {
+        bigint id_rol PK
+        varchar nombre UK
+        varchar descripcion
+    }
+    USUARIOS {
+        bigint id_usuario PK
+        bigint id_rol FK
+        varchar nombre
+        varchar correo UK
+        varchar password
+        varchar pin_hash
+        boolean activo
+    }
+    ESTACIONES {
+        bigint id_estacion PK
+        varchar nombre UK
+        boolean activa
+    }
+    PRODUCTOS {
+        bigint id_producto PK
+        bigint id_estacion FK
+        varchar nombre
+        decimal precio
+        boolean activo
+    }
+    INGREDIENTES {
+        bigint id_ingrediente PK
+        varchar nombre
+        varchar unidad_medida
+        decimal stock_actual
+        decimal stock_minimo
+    }
+    RECETAS {
+        bigint id_receta PK
+        bigint id_producto FK
+        int version
+        text instrucciones
+        boolean activa
+    }
+    DETALLE_RECETAS {
+        bigint id_detalle_receta PK
+        bigint id_receta FK
+        bigint id_ingrediente FK
+        decimal cantidad
+    }
+    TURNOS {
+        bigint id_turno PK
+        varchar nombre
+        time hora_inicio
+        time hora_fin
+    }
+    ORDENES {
+        bigint id_orden PK
+        varchar folio UK
+        bigint id_usuario FK
+        varchar canal_origen
+        varchar estado
+        decimal total
+        datetime cerrada_en
+    }
+    DETALLE_ORDENES {
+        bigint id_detalle_orden PK
+        bigint id_orden FK
+        bigint id_producto FK
+        bigint id_estacion FK
+        bigint id_receta_aplicada FK
+        int cantidad
+        decimal precio_unitario
+        decimal subtotal
+        varchar estado_preparacion
+    }
+    MOVIMIENTOS_INVENTARIO {
+        bigint id_movimiento PK
+        bigint id_ingrediente FK
+        bigint id_usuario FK
+        bigint id_detalle_orden FK
+        varchar tipo
+        decimal cantidad
+        datetime fecha_movimiento
+    }
+    ASISTENCIAS {
+        bigint id_asistencia PK
+        bigint id_usuario FK
+        bigint id_turno FK
+        varchar tipo
+        datetime fecha_hora
+    }
+    PLANTILLAS_TAREAS {
+        bigint id_plantilla PK
+        bigint id_usuario_creador FK
+        varchar titulo
+        text descripcion
+        boolean activa
+    }
+    ASIGNACIONES_TAREAS {
+        bigint id_asignacion PK
+        bigint id_plantilla FK
+        bigint id_turno FK
+        bigint id_estacion FK
+        bigint id_usuario_asignado FK
+        varchar estado
+        datetime completada_en
+    }
+    HISTORIAL_ESTADOS_ORDEN {
+        bigint id_historial PK
+        bigint id_orden FK
+        bigint id_usuario FK
+        varchar estado_anterior
+        varchar estado_nuevo
+        datetime fecha_cambio
+    }
+```
+
+### 22.3. Relaciones y cardinalidades principales
+
+| Relación | Cardinalidad propuesta | Motivo |
+| :--- | :--- | :--- |
+| Rol — Usuario | Un rol puede asignarse a muchos usuarios; cada usuario tiene un rol. | Separar permisos de los datos personales. |
+| Estación — Producto | Una estación puede preparar varios productos; cada producto tiene una estación principal. | Permitir el filtrado de productos en cada KDS. |
+| Orden — Detalle de orden | Una orden contiene varios renglones; cada renglón pertenece a una orden. | Guardar cantidades, precios aplicados y estado de preparación por artículo. |
+| Producto — Receta | Un producto puede tener varias versiones de receta; cada receta corresponde a un producto. | Mantener identificada la receta utilizada cuando se descuenta inventario. |
+| Receta — Ingrediente | Relación muchos a muchos resuelta por `detalle_recetas`. | Guardar la cantidad exacta de cada ingrediente por receta. |
+| Ingrediente — Movimiento | Un ingrediente tiene muchos movimientos de inventario. | Conservar la procedencia de las entradas, salidas, consumos y ajustes. |
+| Usuario — Asistencia | Un usuario puede tener muchas marcas de asistencia. | Mantener un historial en lugar de sobrescribir la última entrada/salida. |
+| Plantilla — Asignación de tarea | Una plantilla puede generar muchas asignaciones. | Reutilizar checklists y distinguir la definición de una tarea de su cumplimiento por turno. |
+| Orden — Historial de estados | Una orden conserva varios cambios de estado. | Revisar cómo avanzó la preparación sin perder los estados anteriores. |
+
+### 22.4. Reglas de integridad del modelo
+
+- Las llaves primarias serán de tipo `BIGINT UNSIGNED` con incremento automático, salvo que una migración justifique otra alternativa.
+- Las claves foráneas deberán indexarse y relacionarse con restricciones explícitas. MySQL utiliza las claves foráneas para preservar la integridad referencial entre tablas relacionadas. ([Referencia de MySQL](https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html)).
+- Los importes monetarios usarán `DECIMAL(10,2)`; los ingredientes y cantidades de receta utilizarán `DECIMAL(12,3)` para permitir fracciones de gramos, mililitros o unidades según el insumo.
+- La unidad de medida del ingrediente define la unidad en la que se guarda la existencia y la receta debe usar esa misma unidad o aplicar una conversión validada.
+- Los detalles de orden conservarán el nombre del producto y el precio unitario aplicado en el momento de la venta para no alterar el historial cuando el catálogo cambie.
+- La receta utilizada se guardará en `id_receta_aplicada` al cerrar la venta, siempre que el producto tenga una receta configurada y corresponda realizar el consumo.
+- El movimiento de inventario conservará un registro por ingrediente consumido y el detalle de orden que lo originó. Se recomienda una restricción única sobre `(id_detalle_orden, id_ingrediente, tipo)` para reducir el riesgo de duplicar un mismo consumo. El cierre se ejecutará dentro de una transacción para evitar estados parciales.
+- **Stock insuficiente:** el comportamiento definitivo deberá validarse antes de programarlo. Como regla preventiva, se recomienda bloquear el cierre automático cuando una receta no tenga insumos suficientes y solicitar la intervención del gerente, en lugar de permitir un saldo negativo silencioso.
+- Las entidades que estén relacionadas con ventas históricas no se borrarán físicamente de forma rutinaria; se marcarán como inactivas cuando corresponda.
+
+---
+
+## 23. Diccionario de datos
+
+El siguiente diccionario describe las tablas propuestas para la primera versión del modelo. Los tipos son orientativos para las migraciones MySQL; pueden ajustarse al normalizar la implementación, pero no deben cambiarse sin revisar las relaciones dependientes.
+
+**Convenciones:** `PK` = llave primaria; `FK` = llave foránea; `UK` = valor único; `NN` = obligatorio; `AI` = incremento automático. Las tablas que mantengan historial deberán conservar sus registros en vez de sobrescribirlos.
+
+### 23.1. `roles`
+Catálogo de roles disponibles dentro del sistema.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_rol` | BIGINT UNSIGNED | PK, AI | Identificador del rol. |
+| `nombre` | VARCHAR(30) | NN, UK | Nombre del perfil, por ejemplo `gerente` o `empleado`. |
+| `descripcion` | VARCHAR(255) | NULL | Descripción de las responsabilidades del rol. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de creación y actualización administradas por Laravel. |
+
+### 23.2. `usuarios`
+Datos de acceso de gerentes y empleados. El PIN no se guardará en texto plano.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_usuario` | BIGINT UNSIGNED | PK, AI | Identificador del usuario. |
+| `id_rol` | BIGINT UNSIGNED | FK, NN | Referencia a `roles.id_rol`. |
+| `nombre` | VARCHAR(120) | NN | Nombre del usuario. |
+| `correo` | VARCHAR(180) | NN, UK | Correo de acceso, cuando aplique. |
+| `password` | VARCHAR(255) | NN | Hash de contraseña compatible con la autenticación de Laravel. |
+| `pin_hash` | VARCHAR(255) | NULL | Hash del PIN usado por el reloj checador. |
+| `activo` | BOOLEAN | NN, DEFAULT TRUE | Permite inhabilitar el acceso sin borrar el historial. |
+| `remember_token` | VARCHAR(100) | NULL | Campo opcional utilizado por la autenticación de Laravel si se habilita “recordarme”. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría del registro. |
+
+> **Nota Laravel:** el esquema utiliza la tabla `usuarios` y la llave `id_usuario`; por ello, el modelo de autenticación debe declarar esa tabla y clave primaria, o se deberá adaptar el esquema a la convención `users` antes de generar las migraciones. No deben mantenerse dos tablas de autenticación paralelas.
+
+### 23.3. `estaciones`
+Catálogo de zonas de preparación, por ejemplo bebidas calientes, bebidas frías o panadería.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_estacion` | BIGINT UNSIGNED | PK, AI | Identificador de la estación. |
+| `nombre` | VARCHAR(80) | NN, UK | Nombre visible de la zona. |
+| `descripcion` | VARCHAR(255) | NULL | Alcance de preparación de la estación. |
+| `activa` | BOOLEAN | NN, DEFAULT TRUE | Indica si puede recibir nuevos productos o tareas. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+### 23.4. `productos`
+Catálogo de bebidas y alimentos que se pueden vender desde el POS.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_producto` | BIGINT UNSIGNED | PK, AI | Identificador del producto. |
+| `id_estacion` | BIGINT UNSIGNED | FK, NN | Estación principal responsable de prepararlo. |
+| `nombre` | VARCHAR(120) | NN | Nombre visible del producto. |
+| `descripcion` | TEXT | NULL | Detalles opcionales del artículo. |
+| `precio` | DECIMAL(10,2) | NN | Precio de venta vigente. |
+| `activo` | BOOLEAN | NN, DEFAULT TRUE | Controla si aparece en el POS. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+### 23.5. `ingredientes`
+Catálogo y saldo de los insumos consumidos por las recetas.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_ingrediente` | BIGINT UNSIGNED | PK, AI | Identificador del ingrediente. |
+| `nombre` | VARCHAR(120) | NN, UK | Nombre del insumo. |
+| `unidad_medida` | VARCHAR(15) | NN | Unidad base, por ejemplo `g`, `ml` o `unidad`. |
+| `stock_actual` | DECIMAL(12,3) | NN, DEFAULT 0 | Existencia vigente en la unidad base. |
+| `stock_minimo` | DECIMAL(12,3) | NN, DEFAULT 0 | Umbral de referencia para futuras alertas. |
+| `activo` | BOOLEAN | NN, DEFAULT TRUE | Inhabilita insumos sin destruir su historial. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+### 23.6. `recetas`
+Define la versión e instrucciones de preparación de un producto.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_receta` | BIGINT UNSIGNED | PK, AI | Identificador de la versión de receta. |
+| `id_producto` | BIGINT UNSIGNED | FK, NN | Producto al que corresponde. |
+| `version` | SMALLINT UNSIGNED | NN | Número de versión; único por producto. |
+| `instrucciones` | TEXT | NULL | Pasos de preparación usados por Help Mode. |
+| `activa` | BOOLEAN | NN, DEFAULT TRUE | Señala si es la receta vigente para nuevas ventas. |
+| `id_usuario_creador` | BIGINT UNSIGNED | FK, NULL | Usuario que registró la receta. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+**Restricción propuesta:** `UNIQUE (id_producto, version)`. La aplicación deberá impedir que haya más de una versión activa para el mismo producto.
+
+### 23.7. `detalle_recetas`
+Relaciona recetas e ingredientes con su cantidad requerida por unidad vendida.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_detalle_receta` | BIGINT UNSIGNED | PK, AI | Identificador del componente de receta. |
+| `id_receta` | BIGINT UNSIGNED | FK, NN | Receta a la que pertenece. |
+| `id_ingrediente` | BIGINT UNSIGNED | FK, NN | Ingrediente que se consume. |
+| `cantidad` | DECIMAL(12,3) | NN | Cantidad por una unidad del producto en la unidad base del ingrediente. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría si se requieren. |
+
+**Restricción propuesta:** `UNIQUE (id_receta, id_ingrediente)` para evitar que un mismo ingrediente aparezca duplicado dentro de la misma receta sin una decisión explícita.
+
+### 23.8. `turnos`
+Catálogo de turnos de operación para organizar asistencia y tareas.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_turno` | BIGINT UNSIGNED | PK, AI | Identificador del turno. |
+| `nombre` | VARCHAR(60) | NN, UK | Nombre del turno. |
+| `hora_inicio` | TIME | NN | Hora de inicio programada. |
+| `hora_fin` | TIME | NN | Hora de fin programada. |
+| `activo` | BOOLEAN | NN, DEFAULT TRUE | Indica si se puede asignar. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+### 23.9. `ordenes`
+Registra la orden principal creada en el POS y mantiene el canal de procedencia.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_orden` | BIGINT UNSIGNED | PK, AI | Identificador de la orden. |
+| `folio` | VARCHAR(30) | NN, UK | Folio legible y único. |
+| `id_usuario` | BIGINT UNSIGNED | FK, NN | Usuario que capturó la orden. |
+| `canal_origen` | VARCHAR(20) | NN | `mostrador`, `drive_thru` o `delivery`. |
+| `estado` | VARCHAR(30) | NN | Estado operativo de la orden. |
+| `total` | DECIMAL(10,2) | NN, DEFAULT 0 | Importe de los detalles guardados. |
+| `metodo_pago_registrado` | VARCHAR(25) | NULL | Etiqueta del método registrado manualmente; no representa una pasarela de pago. |
+| `nota` | TEXT | NULL | Observaciones de operación, si existen. |
+| `cerrada_en` | DATETIME | NULL | Fecha del cierre que autoriza el consumo de recetas. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+Estados iniciales propuestos: `capturada`, `en_preparacion`, `lista`, `entregada`, `cerrada` y `cancelada`. La aplicación definirá las transiciones válidas y evitará cerrar o descontar dos veces la misma orden.
+
+### 23.10. `detalle_ordenes`
+Almacena cada producto de la orden, su precio histórico y su estación de preparación.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_detalle_orden` | BIGINT UNSIGNED | PK, AI | Identificador del renglón de venta. |
+| `id_orden` | BIGINT UNSIGNED | FK, NN | Orden a la que pertenece. |
+| `id_producto` | BIGINT UNSIGNED | FK, NN | Referencia al producto del catálogo. |
+| `id_estacion` | BIGINT UNSIGNED | FK, NN | Estación asignada al tomar la orden, conservada como referencia histórica. |
+| `id_receta_aplicada` | BIGINT UNSIGNED | FK, NULL | Versión de receta usada para el consumo si corresponde. |
+| `nombre_producto_snapshot` | VARCHAR(120) | NN | Nombre del producto al momento de la venta. |
+| `cantidad` | INT UNSIGNED | NN | Unidades vendidas; debe ser mayor que cero. |
+| `precio_unitario` | DECIMAL(10,2) | NN | Precio unitario al momento de crear la orden. |
+| `subtotal` | DECIMAL(10,2) | NN | `cantidad × precio_unitario`. |
+| `estado_preparacion` | VARCHAR(25) | NN | Estado del artículo en el KDS. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+### 23.11. `movimientos_inventario`
+Bitácora de cada modificación de existencias, incluyendo consumo por receta y ajustes autorizados.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_movimiento` | BIGINT UNSIGNED | PK, AI | Identificador del movimiento. |
+| `id_ingrediente` | BIGINT UNSIGNED | FK, NN | Ingrediente afectado. |
+| `id_usuario` | BIGINT UNSIGNED | FK, NULL | Usuario responsable; puede ser nulo en procesos automáticos controlados. |
+| `id_detalle_orden` | BIGINT UNSIGNED | FK, NULL | Detalle que originó el consumo de venta, cuando aplique. |
+| `tipo` | VARCHAR(20) | NN | `entrada`, `salida`, `consumo`, `ajuste` o `reversion`. |
+| `cantidad` | DECIMAL(12,3) | NN | Magnitud del movimiento, siempre positiva; el tipo determina su efecto. |
+| `motivo` | VARCHAR(255) | NULL | Justificación de ajuste o movimiento manual. |
+| `fecha_movimiento` | DATETIME | NN | Fecha y hora registrada por el servidor. |
+| `created_at` | TIMESTAMP | NULL | Fecha de creación del registro. |
+
+El saldo `ingredientes.stock_actual` se actualizará en la misma transacción que registra el movimiento. Los movimientos no se borrarán para corregir errores: se registrará una reversión o ajuste autorizado.
+
+### 23.12. `asistencias`
+Conserva cada marca de entrada o salida del personal.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_asistencia` | BIGINT UNSIGNED | PK, AI | Identificador de la marca. |
+| `id_usuario` | BIGINT UNSIGNED | FK, NN | Empleado al que corresponde la marca. |
+| `id_turno` | BIGINT UNSIGNED | FK, NULL | Turno relacionado cuando se asignó uno. |
+| `tipo` | VARCHAR(15) | NN | `entrada` o `salida`. |
+| `metodo` | VARCHAR(15) | NN, DEFAULT `PIN` | Forma de captura. |
+| `fecha_hora` | DATETIME | NN | Hora generada por el servidor. |
+| `nota` | VARCHAR(255) | NULL | Observación opcional para incidencias. |
+
+### 23.13. `plantillas_tareas`
+Define tareas reutilizables de limpieza o mantenimiento.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_plantilla` | BIGINT UNSIGNED | PK, AI | Identificador de la plantilla. |
+| `id_usuario_creador` | BIGINT UNSIGNED | FK, NN | Usuario que creó la plantilla. |
+| `titulo` | VARCHAR(120) | NN | Nombre breve del checklist. |
+| `descripcion` | TEXT | NULL | Instrucciones para realizar la tarea. |
+| `activa` | BOOLEAN | NN, DEFAULT TRUE | Indica si puede asignarse a un turno. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+### 23.14. `asignaciones_tareas`
+Representa una tarea asignada para un turno, una zona o un empleado concreto.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_asignacion` | BIGINT UNSIGNED | PK, AI | Identificador de la asignación. |
+| `id_plantilla` | BIGINT UNSIGNED | FK, NN | Plantilla de la que se originó la tarea. |
+| `id_turno` | BIGINT UNSIGNED | FK, NULL | Turno al que se vincula. |
+| `id_estacion` | BIGINT UNSIGNED | FK, NULL | Zona a la que se dirige la tarea. |
+| `id_usuario_asignado` | BIGINT UNSIGNED | FK, NULL | Empleado responsable si la asignación es individual. |
+| `id_usuario_asigno` | BIGINT UNSIGNED | FK, NN | Gerente u operador autorizado que asignó la tarea. |
+| `id_usuario_completo` | BIGINT UNSIGNED | FK, NULL | Usuario que la marcó como terminada. |
+| `estado` | VARCHAR(20) | NN, DEFAULT `pendiente` | `pendiente`, `en_proceso` o `completada`. |
+| `fecha_limite` | DATETIME | NULL | Fecha/hora límite, si se define. |
+| `completada_en` | DATETIME | NULL | Momento de cumplimiento. |
+| `created_at` / `updated_at` | TIMESTAMP | NULL | Fechas de auditoría. |
+
+### 23.15. `historial_estados_orden`
+Registra quién cambió el estado de la orden y cuándo ocurrió.
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `id_historial` | BIGINT UNSIGNED | PK, AI | Identificador del evento. |
+| `id_orden` | BIGINT UNSIGNED | FK, NN | Orden afectada. |
+| `id_usuario` | BIGINT UNSIGNED | FK, NULL | Usuario responsable del cambio. |
+| `estado_anterior` | VARCHAR(30) | NULL | Estado previo; nulo en la creación inicial. |
+| `estado_nuevo` | VARCHAR(30) | NN | Estado resultante. |
+| `observacion` | TEXT | NULL | Nota del cambio si se requiere. |
+| `fecha_cambio` | DATETIME | NN | Fecha/hora registrada por el servidor. |
+
+---
+
+## 24. Diagramas complementarios
+
+### 24.1. Arquitectura del sistema
+
+Este diagrama describe la separación prevista entre las interfaces, la lógica de negocio de Laravel y la persistencia MySQL. La actualización del KDS debe validarse con una prueba técnica: Blade renderiza las vistas, mientras que JavaScript o un mecanismo de difusión se encarga de consultar/reflejar cambios sin recarga manual.
+
+```mermaid
+flowchart TB
+    subgraph CLIENTES[Dispositivos con navegador]
+        POS[Terminal POS / Caja]
+        KDS[Pantallas KDS por estación]
+        ADMIN[Panel gerente y personal]
+    end
+
+    subgraph WEB[Aplicación Laravel]
+        ROUTES[Rutas web y validación]
+        AUTH[Autenticación, roles y middleware]
+        CONTROLLERS[Controladores]
+        SERVICES[Servicios de negocio<br/>Órdenes, recetas e inventario]
+        MODELS[Modelos Eloquent]
+        VIEWS[Vistas Blade + CSS/JavaScript]
+        UPDATES[Actualización de KDS<br/>consulta periódica o difusión]
+    end
+
+    DB[(MySQL)]
+
+    POS --> VIEWS
+    KDS --> VIEWS
+    ADMIN --> VIEWS
+    VIEWS <--> ROUTES
+    ROUTES --> AUTH
+    AUTH --> CONTROLLERS
+    CONTROLLERS --> SERVICES
+    CONTROLLERS --> MODELS
+    SERVICES --> MODELS
+    MODELS <--> DB
+    SERVICES --> UPDATES
+    UPDATES --> KDS
+```
+
+### 24.2. Diagrama de casos de uso
+
+```mermaid
+flowchart LR
+    GER[Gerente]
+    EMP[Empleado]
+    CAJ[Cajero / POS]
+    EXT[Plataforma delivery externa]
+
+    subgraph CS[CaféSync]
+        LOGIN([Iniciar sesión])
+        USERS([Gestionar usuarios y roles])
+        CATALOG([Administrar productos, estaciones e ingredientes])
+        RECIPES([Configurar recetas])
+        INVENTORY([Consultar y ajustar inventario])
+        REPORTS([Consultar reportes básicos])
+        ORDER([Registrar orden y canal])
+        KDS([Consultar órdenes de la estación])
+        STATUS([Actualizar preparación])
+        HELP([Consultar Help Mode])
+        CLOCK([Registrar entrada/salida con PIN])
+        TASKS([Asignar tareas por turno y zona])
+        CHECKLIST([Consultar y completar tareas])
+    end
+
+    GER --> LOGIN
+    GER --> USERS
+    GER --> CATALOG
+    GER --> RECIPES
+    GER --> INVENTORY
+    GER --> REPORTS
+    GER --> TASKS
+    CAJ --> LOGIN
+    CAJ --> ORDER
+    EMP --> KDS
+    EMP --> STATUS
+    EMP --> HELP
+    EMP --> CLOCK
+    EMP --> CHECKLIST
+    EXT -. "Pedido ingresado manualmente" .-> ORDER
+```
+
+### 24.3. Flujo de una orden y descuento de ingredientes
+
+```mermaid
+flowchart TD
+    A[El cajero crea la orden en POS] --> B[Se guardan la orden y sus detalles]
+    B --> C[Se consulta la estación de cada producto]
+    C --> D[Los detalles aparecen en los KDS correspondientes]
+    D --> E[El personal prepara y actualiza estados]
+    E --> F{¿La orden está lista para cerrar?}
+    F -- No --> D
+    F -- Sí --> G[Iniciar transacción en Laravel]
+    G --> H[Validar que la orden no se haya descontado antes]
+    H --> I[Obtener receta aplicada y cantidades de ingredientes]
+    I --> J[Registrar movimientos y actualizar existencias MySQL]
+    J --> K[Marcar cierre y guardar historial]
+    K --> L[Confirmar transacción]
+    H -- Error o cierre duplicado --> M[Cancelar operación / no duplicar descuento]
+```
+
+### 24.4. Consideraciones de comunicación del KDS
+
+El requisito inicial establece que las órdenes aparezcan rápidamente y sin recargar manualmente la página. El mecanismo exacto debe compararse durante la implementación:
+
+- **Consulta periódica (polling):** alternativa sencilla para un primer prototipo con Blade y JavaScript; el tiempo de actualización depende del intervalo y la carga del servidor.
+- **Difusión de eventos:** si la medición demuestra que el polling no alcanza el objetivo de menos de un segundo, se evaluará Laravel Broadcasting con un servidor compatible, por ejemplo Reverb.
+- **Criterio de aceptación:** medir el tiempo desde el envío de la orden hasta su aparición en la pantalla destino, repetir las pruebas y documentar entorno, resultado y limitaciones.
+
+La aplicación no debe afirmar que funciona en tiempo real antes de validar el mecanismo elegido. La integración directa con Rappi/DiDi no está contemplada en el MVP; los pedidos de delivery se capturarán manualmente o se simularán.
+
+---
+
+## 25. Control de versiones: Git y GitHub
+
+Se utilizará **Git** para registrar los cambios del código fuente y **GitHub** para alojar el repositorio remoto de CaféSync. La documentación, migraciones, modelos, controladores, vistas Blade y pruebas deberán mantenerse en el mismo historial para que cada modificación pueda revisarse.
+
+### 25.1. Organización del repositorio
+
+```text
+CafeSync/
+├── app/
+│   ├── Http/Controllers/
+│   ├── Models/
+│   └── Services/                 # servicios de negocio si se crean
+├── database/
+│   ├── migrations/               # esquema MySQL versionado
+│   ├── seeders/                  # catálogos y datos de prueba
+│   └── factories/
+├── resources/
+│   └── views/                    # vistas Blade
+├── routes/
+│   └── web.php
+├── tests/
+├── public/
+├── .env.example
+├── .gitignore
+├── composer.json
+└── README.md
+```
+
+La estructura representa la organización que se espera construir a medida que avance el desarrollo; algunas carpetas o clases pueden no existir en el estado inicial del repositorio.
+
+### 25.2. Configuración inicial de Git
+
+```powershell
+git config --global user.name "Axel Espinoza Blanco"
+git config --global user.email "TU_CORREO_DE_GITHUB"
+git config --global init.defaultBranch main
+```
+
+Verificación:
+
+```powershell
+git config --global --list
+git status
+```
+
+`user.name` y `user.email` identifican al autor de los commits, pero no definen por sí mismos qué cuenta tiene permiso para hacer `push` a GitHub. La autenticación remota se administra por separado con el navegador o Git Credential Manager.
+
+### 25.3. Protección de información sensible
+
+- No se subirá el archivo `.env` ni contraseñas de MySQL, claves privadas o tokens.
+- Se mantendrá `.env.example` con nombres de variables y valores de muestra, nunca con credenciales funcionales.
+- Se revisará `git status` antes de cada commit para evitar subir respaldos, exportaciones de base de datos con datos reales o archivos de configuración local.
+- El repositorio puede ser público o privado según la instrucción académica; en ambos casos, los secretos deben permanecer fuera del control de versiones.
+
+---
+
+## 26. Flujo de trabajo con GitHub Flow
+
+El proyecto utilizará un flujo sencillo basado en `main` y ramas breves para cada funcionalidad o corrección.
+
+### 26.1. Nombres de ramas
+
+| Prefijo | Uso | Ejemplo |
+| :--- | :--- | :--- |
+| `feature/` | Funcionalidad nueva | `feature/pos-ordenes` |
+| `fix/` | Corrección de un defecto | `fix/descuento-receta` |
+| `docs/` | Documentación o diagramas | `docs/actualizar-der` |
+| `test/` | Pruebas | `test/inventario-recetas` |
+| `refactor/` | Reorganización interna sin cambio intencional de comportamiento | `refactor/servicio-inventario` |
+
+### 26.2. Secuencia de trabajo
+
+```powershell
+# Actualizar la rama principal
+git switch main
+git pull origin main
+
+# Crear una rama para el cambio
+git switch -c feature/pos-ordenes
+
+# Trabajar y revisar
+git status
+git add .
+git commit -m "feat: agregar captura inicial de órdenes"
+git push -u origin feature/pos-ordenes
+```
+
+Después, se abrirá un Pull Request en GitHub, se revisará el diff y se comprobará el comportamiento afectado. Una vez revisado, se integrará el cambio y se eliminará la rama temporal cuando ya no sea necesaria. Para un proyecto individual, la revisión puede ser una autoinspección cuidadosa; no se presupone un equipo de desarrollo adicional.
+
+### 26.3. Convención de commits
+
+Se proponen mensajes breves con el propósito del cambio:
+
+- `feat: agregar módulo de asistencias`
+- `fix: evitar doble descuento de ingredientes`
+- `docs: actualizar diagrama de base de datos`
+- `test: validar cálculo de receta`
+- `refactor: centralizar cierre de ventas`
+
+La rama `main` debe conservar una versión que pueda ejecutarse o, si aún está en desarrollo, dejar claramente documentado qué bloquea su ejecución. No se utilizará `git push --force` como forma rutinaria de resolver conflictos.
+
+---
+
+## 27. Configuración y ejecución local
+
+Los pasos siguientes son una guía base para Windows. Los requisitos exactos de versión se confirmarán al fijar la versión de Laravel y PHP del proyecto. Laravel se instalará y ejecutará de acuerdo con su documentación oficial.
+
+### 27.1. Requisitos
+
+- PHP compatible con la versión de Laravel seleccionada.
+- Composer.
+- Node.js y npm para dependencias de frontend y compilación de recursos.
+- MySQL y un cliente para administrar bases de datos.
+- Git.
+
+### 27.2. Obtener el proyecto
+
+```powershell
+git clone https://github.com/TU-USUARIO/CafeSync.git
+Set-Location CafeSync
+composer install
+```
+
+Sustituye `TU-USUARIO` por la cuenta propietaria del repositorio o utiliza la URL HTTPS que muestra GitHub. Si ya existe el proyecto local, no es necesario clonarlo otra vez.
+
+### 27.3. Preparar el archivo de entorno
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Edita `.env` y configura, como mínimo, los parámetros de la aplicación y MySQL:
+
+```dotenv
+APP_NAME=CafeSync
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cafesync
+DB_USERNAME=TU_USUARIO_MYSQL
+DB_PASSWORD=TU_CONTRASENA_MYSQL
+```
+
+No pegues credenciales reales en el README ni las compartas mediante commits. El archivo `.env` debe permanecer ignorado por Git.
+
+### 27.4. Crear la base de datos
+
+Desde un cliente de MySQL con permisos para crear bases de datos, ejecuta:
+
+```sql
+CREATE DATABASE cafesync
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+```
+
+Después genera la clave de Laravel y prepara las dependencias del frontend:
+
+```powershell
+php artisan key:generate
+npm install
+npm run build
+```
+
+### 27.5. Ejecutar migraciones y arrancar la aplicación
+
+Cuando las migraciones descritas por el modelo estén creadas y revisadas:
+
+```powershell
+php artisan migrate
+```
+
+Si el proyecto ya incluye seeders de catálogo y datos de prueba revisados, se pueden ejecutar con `php artisan db:seed`. No se debe ejecutar una siembra con datos ficticios en una base de producción.
+
+Para iniciar Laravel en desarrollo:
+
+```powershell
+composer run dev
+```
+
+Si el `composer.json` de la versión instalada no contiene ese script, utiliza:
+
+```powershell
+php artisan serve
+```
+
+La dirección local habitual es `http://127.0.0.1:8000`. Esta dirección solo es accesible desde el entorno local salvo que se configure una publicación separada.
+
+### 27.6. Notas de migración
+
+- Las tablas del apartado 22 deben implementarse en migraciones; el diagrama y el diccionario no crean tablas automáticamente.
+- Si el proyecto nuevo conserva la migración Laravel por defecto para `users`, se debe decidir antes de migrar si se adapta esa tabla o se cambia la autenticación a `usuarios`. No deben crearse ambos esquemas para el mismo tipo de usuario.
+- Las migraciones deben ejecutarse en orden de dependencias: roles y usuarios; estaciones y catálogo; ingredientes, recetas y turnos; órdenes y detalles; movimientos, asistencias y tareas.
+- En el entorno local, `php artisan migrate:fresh` elimina y vuelve a crear tablas. Úsalo únicamente en bases de desarrollo cuyos datos se puedan descartar.
+
+---
+
+## 28. Seguridad e integridad de datos
+
+### 28.1. Acceso por rol
+
+La restricción de acceso debe aplicarse en el backend mediante autenticación, middleware, políticas o verificaciones equivalentes. Ocultar un botón en Blade no impide que un empleado intente acceder directamente a una ruta. Para el MVP se contemplan dos roles base: `gerente` y `empleado`.
+
+| Acción | Gerente | Empleado |
+| :--- | :---: | :---: |
+| Capturar órdenes en POS | Según permisos asignados | Sí, si está habilitado para caja |
+| Consultar KDS y Help Mode | Sí | Sí, limitado a la operación/estación pertinente |
+| Consultar y modificar catálogo de ingredientes/recetas | Sí | No, salvo permisos explícitos futuros |
+| Ajustar existencias manualmente | Sí | No |
+| Consultar reportes gerenciales | Sí | No |
+| Registrar asistencia con PIN | Sí, si también se registra como trabajador | Sí |
+| Marcar tareas asignadas | Sí | Sí |
+| Crear usuarios y configurar roles | Sí | No |
+
+La matriz representa la política propuesta; la autorización final se debe convertir en reglas comprobables durante el desarrollo.
+
+### 28.2. Integridad de cierre de venta
+
+El cierre de una venta debe ejecutarse con una transacción que cubra, como mínimo, la validación del estado de la orden, la identificación de las recetas aplicables, el registro de movimientos, la actualización de existencias y la marca final de cierre. Si una operación falla, debe revertirse el conjunto relacionado para evitar que el inventario cambie sin que la venta se cierre correctamente. Laravel ofrece soporte para transacciones de base de datos, que deben utilizarse para coordinar estas operaciones.
+
+Para impedir duplicados, la aplicación comprobará si la orden ya fue cerrada y si ya existen movimientos de consumo relacionados con cada detalle e ingrediente. La validación en el código debe complementarse con restricciones e índices de base de datos donde corresponda.
+
+### 28.3. Historial y privacidad
+
+- Los movimientos de inventario y los cambios de estado se conservan como historial; los errores se corrigen mediante un movimiento inverso o ajuste autorizado.
+- Las horas de asistencia, cambios de estado y movimientos se generan en el servidor, no mediante una hora enviada libremente por el navegador.
+- Las contraseñas y PIN se guardan mediante hashes adecuados; nunca se muestran en el panel.
+- Los errores de aplicación no deben exponer consultas, trazas o secretos al usuario final.
+- Los datos usados en pruebas deben ser ficticios. No se incluirán listas reales de empleados ni información privada de la cafetería en el repositorio.
+
+---
+
+## 29. Referencias técnicas
+
+La documentación oficial se utilizará para comprobar la configuración concreta que corresponda a la versión instalada. Estas referencias respaldan la selección de tecnologías y las prácticas propuestas; no significan que todas las funciones ya estén programadas.
+
+- [Laravel — Documentación oficial](https://laravel.com/docs)
+- [Laravel — Blade Templates](https://laravel.com/docs/blade)
+- [Laravel — Base de datos y transacciones](https://laravel.com/docs/database)
+- [Laravel — Migraciones](https://laravel.com/docs/migrations)
+- [Laravel — Autenticación](https://laravel.com/docs/authentication)
+- [Laravel — Autorización](https://laravel.com/docs/authorization)
+- [Laravel — Broadcasting](https://laravel.com/docs/broadcasting)
+- [MySQL — Restricciones de claves foráneas](https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html)
+- [GitHub Docs — Git](https://docs.github.com/en/get-started/using-git/about-git)
+- [GitHub Docs — GitHub Flow](https://docs.github.com/en/get-started/using-github/github-flow)
+
+---
+
 
 ## Cierre de la propuesta
 
@@ -846,4 +1666,4 @@ CaféSync se define como una herramienta de coordinación operativa para cafeter
 La prioridad durante el desarrollo será construir un flujo pequeño pero confiable. Un sistema con menos funciones, pero con órdenes bien distribuidas, permisos correctos y movimientos de inventario consistentes, constituye una mejor base para crecer que una versión extensa cuyas reglas todavía no han sido verificadas.
 
 
-> Nota de alcance<br>Este documento describe la propuesta ampliada de CaféSync a partir de la versión original y utiliza como referencia de organización un documento académico de especificación de proyecto. Las ampliaciones técnicas y las reglas explicitadas se presentan como propuestas por validar; no se afirma que estén implementadas ni que hayan sido probadas.
+> **Nota de alcance:** Este README integra la propuesta funcional de CaféSync con decisiones técnicas, un DER, un diccionario de datos y pautas de repositorio. Los elementos que se describen como propuestos deben validarse durante el desarrollo; no se afirma que estén implementados o probados por el solo hecho de estar documentados.
