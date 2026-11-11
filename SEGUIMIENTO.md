@@ -42,9 +42,16 @@ Documento de control del proyecto bajo el **Scrum adaptado** descrito en el READ
 | `448cd3b` | 2026-10-19 | `docs:` segunda versión de CaféSync — **último commit en `origin/main`** |
 | `f860f40` | 2026-11-03 | `feat:` modelo de datos, migraciones, enums y seeders (rama `feature/base-datos-modelos`) |
 | `fcaf430` | 2026-11-03 | Merge de `feature/base-datos-modelos` en `main` **local** (sin Pull Request) |
+| `dcf164c` | 2026-11-10 | `feat:` autenticación por usuario o correo, MFA TOTP, multisesiones y middleware de seguridad |
+| `83890fe` | 2026-11-10 | `feat:` recuperación de contraseña por correo, pregunta secreta, SMS y llamada |
+| `a2d5de9` | 2026-11-10 | `feat:` POS, KDS por estación, Help Mode, cierre de venta e inventario por receta |
+| `72a4533` | 2026-11-10 | `feat:` reloj checador con PIN, tareas por turno, reporte de ventas y rutas web |
+| `bf5ed8e` | 2026-11-10 | `docs:` documento de seguimiento |
+| `76a5427` | 2026-11-10 | `fix:` Twilio, vencimiento de tokens, `.env.example` para MySQL, excepción de PIN inválido |
+| `270d1e4` | 2026-11-10 | `test:` 106 pruebas de dominio, seguridad y endpoints |
 
-- `main` local va **2 commits adelante** de `origin/main` (no se ha hecho `push`).
-- En `feature/autenticacion-seguridad` hay **~60 archivos sin commitear** (controladores, servicios, middleware, observers, policy, repositorio, rutas, API). Es el trabajo del Sprint 2.
+- `main` local va **2 commits adelante** de `origin/main` (no se ha hecho `push`); `feature/autenticacion-seguridad` tampoco está publicada.
+- El trabajo del Sprint 2 que estaba sin commitear quedó registrado el 2026-11-10 en los commits anteriores.
 
 ---
 
@@ -89,17 +96,18 @@ Documento de control del proyecto bajo el **Scrum adaptado** descrito en el READ
 | :--- | :--- | :--- | :--- | :--- |
 | D-01 | Crítico | `routes/web.php` referencia 11 controladores `App\Http\Controllers\Admin\*` que no existen (Usuario, Estacion, Producto, RecetaAdmin, Ingrediente, MovimientoInventario, PlantillaTarea, AsignacionTarea, AsistenciaReporte, ReporteVentas, TokenApi). | `php artisan route:list` falla con `ReflectionException` en `Admin\UsuarioController`. | Abierto |
 | D-02 | Crítico | No existe ninguna vista Blade de la aplicación (solo `welcome.blade.php` por defecto y el correo). Los controladores devuelven 17 vistas inexistentes (`auth.*`, `dashboard.index`, `cuenta.seguridad`, `pos.*`, `kds.*`, `ayuda.*`, `asistencia.index`, `tareas.index`) y no hay layout. | `resources/views/` | Abierto |
-| D-03 | Alto | `config/services.php` no define la clave `twilio`; `ProveedorTelefonia::configurado()` siempre devuelve `false` aunque existan credenciales. `.env.example` tampoco declara `TWILIO_*`. | `config/services.php` | Abierto |
-| D-04 | Alto | No hay pruebas del dominio. `tests/Feature/ExampleTest.php` falla (espera 200 y `/` redirige con 302). `RefreshDatabase` está comentado en `tests/Pest.php`. | `php artisan test --compact` → 1 falla, 1 pasa | Abierto |
-| D-05 | Alto | El entorno usa SQLite, el README exige MySQL. En SQLite `lockForUpdate()` no bloquea filas, por lo que la protección de concurrencia del cierre de venta no se puede validar. | `.env`, `.env.example` | Abierto |
-| D-06 | Medio | ~60 archivos del Sprint 2 sin commitear; `main` local con 2 commits sin `push`; el merge de `feature/base-datos-modelos` se hizo sin Pull Request. | `git status`, `git rev-list` | Abierto |
-| D-07 | Medio | `.env.example` desactualizado: `APP_NAME=Laravel`, `APP_LOCALE=en`, sin bloque MySQL activo, sin `TWILIO_*` ni `SEED_DEMO_PASSWORD`. | `.env.example` | Abierto |
-| D-08 | Medio | Los tokens de Sanctum no vencen (`sanctum.expiration = null`). | `config/sanctum.php` | Abierto |
+| D-03 | Alto | `config/services.php` no define la clave `twilio`; `ProveedorTelefonia::configurado()` siempre devuelve `false` aunque existan credenciales. `.env.example` tampoco declara `TWILIO_*`. | `config/services.php` | **Corregido** (`76a5427`); verificado con `Http::fake` en `RecuperacionPasswordControllerTest` |
+| D-04 | Alto | No hay pruebas del dominio. `tests/Feature/ExampleTest.php` falla (espera 200 y `/` redirige con 302). `RefreshDatabase` está comentado en `tests/Pest.php`. | `php artisan test --compact` → 1 falla, 1 pasa | **Corregido** (`270d1e4`): `LazilyRefreshDatabase` activo, `ExampleTest` ajustado a la redirección real, 106 pruebas pasan |
+| D-05 | Alto | El entorno usa SQLite, el README exige MySQL. En SQLite `lockForUpdate()` no bloquea filas, por lo que la protección de concurrencia del cierre de venta no se puede validar. | `.env` | Abierto. `.env.example` ya apunta a MySQL; falta la base local (decisión §8-1) |
+| D-06 | Medio | ~60 archivos del Sprint 2 sin commitear; `main` local con 2 commits sin `push`; el merge de `feature/base-datos-modelos` se hizo sin Pull Request. | `git status`, `git rev-list` | Parcial: commiteado en 7 commits semánticos; falta `push` y PR (decisiones §8-6 y §8-7) |
+| D-07 | Medio | `.env.example` desactualizado: `APP_NAME=Laravel`, `APP_LOCALE=en`, sin bloque MySQL activo, sin `TWILIO_*` ni `SEED_DEMO_PASSWORD`. | `.env.example` | **Corregido** (`76a5427`) |
+| D-08 | Medio | Los tokens de Sanctum no vencen (`sanctum.expiration = null`). | `config/sanctum.php` | **Corregido** (`76a5427`): `SANCTUM_EXPIRATION`, 30 días por defecto |
 | D-09 | Medio | El empleado puede cancelar cualquier orden no cerrada (`ordenes.cancelar` sin restricción de rol). La matriz del README no define esta acción. | `routes/web.php` | Requiere decisión (§8) |
 | D-10 | Bajo | `lang/es` vacío: los mensajes de validación de Laravel saldrán en inglés. | `lang/es` | Abierto |
 | D-11 | Bajo | MFA solo genera la URI `otpauth://`; no hay forma de mostrar QR sin una dependencia nueva. | `MfaService::uriAprovisionamiento` | Requiere decisión (§8) |
-| D-12 | Bajo | `AsistenciaController` decide si cuenta un intento fallido comparando el texto del mensaje (`'PIN no válido.'`); es frágil ante un cambio de redacción. | `AsistenciaController::store` | Abierto |
+| D-12 | Bajo | `AsistenciaController` decide si cuenta un intento fallido comparando el texto del mensaje (`'PIN no válido.'`); es frágil ante un cambio de redacción. | `AsistenciaController::store` | **Corregido** (`76a5427`): `PinInvalidoException` |
 | D-13 | Bajo | `welcome.blade.php` (plantilla de Laravel) ya no se usa. | `resources/views/welcome.blade.php` | Abierto |
+| D-14 | Bajo | Hallazgo de pruebas: `SesionService::listar()` devuelve una lista vacía si el driver no es `database`; la pantalla de sesiones debe explicarlo en vez de mostrar «sin sesiones». | `SesionControllerTest` | Abierto (se atiende en la vista `cuenta.seguridad`) |
 
 ---
 
@@ -127,6 +135,8 @@ Se actualiza en cada sprint. Al cierre (Fase 8) se completan las columnas *Prueb
 | RF-14 | Aviso de bajo inventario | P2 | PARCIAL | `Ingrediente::scopeBajoMinimo`, dato en `DashboardController` | Vista con alerta | D-02 |
 | RF-15 | Reconexión / contingencia | P2 | PENDIENTE | Polling sin indicador de conexión | Indicador y reintento en KDS, CP-14. Impresión de tickets: no hay hardware compatible | B-17 |
 
+**Avance verificado el 2026-11-10 (backend, SQLite):** la lógica de RF-02, RF-03, RF-04, RF-07, RF-08, RF-09, RF-10 y RF-11 tiene pruebas automatizadas que pasan (ver §5). Siguen en PARCIAL porque falta la interfaz y, en RF-09/RF-11, las pantallas administrativas.
+
 ### 4.2. Requisitos no funcionales
 
 | ID | Atributo | Prio | Estado | Evidencia / pendiente |
@@ -134,8 +144,8 @@ Se actualiza en cada sprint. Al cierre (Fase 8) se completan las columnas *Prueb
 | RNF-01 | Actualización < 1 s | P1 | PENDIENTE | Diseño con polling de 800 ms; **no medido**. No se debe afirmar «tiempo real» hasta registrar la medición. |
 | RNF-02 | Seguridad por rol | P1 | PARCIAL | Middleware y verificaciones en servicios; faltan pruebas de acceso directo. |
 | RNF-03 | Usabilidad táctil 1920×1080 | P1 | PENDIENTE | No hay interfaz. |
-| RNF-04 | Integridad transaccional | P1 | PARCIAL | Implementada; sin prueba de falla ni de repetición; SQLite no valida bloqueos. |
-| RNF-05 | Consistencia de unidades | P1 | PARCIAL | `UnidadMedida` + validación en recetas y ajustes; sin pruebas contra cálculo manual. |
+| RNF-04 | Integridad transaccional | P1 | PARCIAL | **Probado:** una falta de ingrediente al cerrar revierte todo (sin movimientos ni cambio de saldo) y repetir el cierre no duplica. Falta la prueba de concurrencia en MySQL (SQLite no bloquea filas). |
+| RNF-05 | Consistencia de unidades | P1 | PARCIAL | **Probado** contra cálculo manual: 1.5 kg → 1500 g; 0.25 l → 250 ml; unidades incompatibles rechazadas en recetas y ajustes. Falta prueba en la interfaz. |
 | RNF-06 | Validación de datos | P1 | PARCIAL | `validate()` en controladores; faltan mensajes en español y CP-13. |
 | RNF-07 | Confidencialidad de credenciales | P1 | PARCIAL | Contraseña `hashed`, PIN bcrypt + HMAC, respuesta secreta con hash, `mfa_secret` cifrado, códigos con huella. Falta prueba que inspeccione la persistencia. |
 | RNF-08 | Disponibilidad de red | P1 | PENDIENTE | Sin indicador de pérdida de comunicación. |
@@ -159,26 +169,26 @@ Se actualiza en cada sprint. Al cierre (Fase 8) se completan las columnas *Prueb
 
 | ID | Criterio | Estado | Evidencia encontrada | Trabajo pendiente |
 | :--- | :--- | :--- | :--- | :--- |
-| RB-01 | Login con usuario o correo y contraseña | PARCIAL | `LoginController::store` | Vista, pruebas |
-| RB-02 | Protección contra intentos repetidos | PARCIAL | `RateLimiter` (5 / 300 s) + `throttle:30,1` | Pruebas |
-| RB-03 | MFA como segunda verificación real | PARCIAL | TOTP + códigos de recuperación + desafío previo al login | Vistas, QR (D-11), pruebas |
-| RB-04 | Tokens de autenticación diferenciados de la sesión | PARCIAL | Sanctum con habilidades para KDS | Emisión/revocación (`TokenApiController`), vencimiento (D-08), documentar relación sesión ↔ token |
-| RB-05 | Cierre de sesión seguro | PARCIAL | `logout` + `invalidate` + `regenerateToken` | Prueba |
-| RB-06 | Multisesiones y cierre remoto con efecto real | PARCIAL | `SesionService` elimina la fila de `sessions` | Vista, prueba que confirme que la cookie revocada pierde acceso |
-| RB-07 | Recuperación por correo | PARCIAL / BLOQUEADO | Estrategia completa; `MAIL_MAILER=log` | Credenciales SMTP reales para el envío; pruebas con `Mail::fake()` |
-| RB-08 | Recuperación por pregunta secreta | PARCIAL | Estrategia completa con hash y señuelo | Vista, pruebas |
-| RB-09 | Recuperación por SMS | BLOQUEADO | Estrategia + cliente Twilio | Corregir D-03; cuenta y número de Twilio |
-| RB-10 | Recuperación por llamada | BLOQUEADO | Estrategia + cliente Twilio (TwiML `<Say>`) | Corregir D-03; cuenta y número de Twilio |
-| RB-11 | Autorización y rutas protegidas en el backend | PARCIAL | Middleware, Gate, Policy, verificaciones en servicios | D-01, pruebas de acceso directo por rol |
+| RB-01 | Login con usuario o correo y contraseña | PARCIAL | `LoginController::store`; **probado**: `LoginControllerTest` (usuario y correo, credenciales incorrectas, cuenta inexistente, cuenta inactiva, campos requeridos) | Vista de login |
+| RB-02 | Protección contra intentos repetidos | PARCIAL | **Probado**: bloqueo del login tras 5 fallos (aun con la contraseña correcta), del PIN tras 5 fallos y del código de recuperación tras 5 intentos | Vista con el mensaje de espera |
+| RB-03 | MFA como segunda verificación real | PARCIAL | **Probado**: el login no abre sesión hasta validar el código; rechaza códigos incorrectos, reutilizados o vencidos; códigos de recuperación de un solo uso; secreto cifrado en BD; vectores RFC 6238 | Vistas, QR (D-11) |
+| RB-04 | Tokens de autenticación diferenciados de la sesión | PARCIAL | Sanctum con habilidades; **probado**: 401 sin token, 403 sin habilidad, 403 con usuario inactivo; vencimiento configurable (D-08 corregido) | Emisión/revocación (`TokenApiController`), documentar relación sesión ↔ token |
+| RB-05 | Cierre de sesión seguro | PARCIAL | **Probado**: `logout` deja al usuario sin autenticar | Botón en el layout |
+| RB-06 | Multisesiones y cierre remoto con efecto real | PARCIAL | **Probado**: una cookie válida (200) pierde el acceso (401) después del cierre remoto; no se pueden cerrar sesiones ajenas; cerrar las demás exige contraseña; identifica dispositivo, navegador, SO e IP | Vista `cuenta.seguridad` |
+| RB-07 | Recuperación por correo | PARCIAL / BLOQUEADO | **Probado** con `Mail::fake()`: código de 6 dígitos con hash, vigencia de 10 min, 5 intentos, respuesta idéntica para cuentas inexistentes, cierre de sesiones al restablecer | Vista; credenciales SMTP reales para el envío (§8-2) |
+| RB-08 | Recuperación por pregunta secreta | PARCIAL | **Probado**: flujo completo con respuesta normalizada; respuesta incorrecta rechazada | Vista |
+| RB-09 | Recuperación por SMS | BLOQUEADO | **Probado** con `Http::fake()`: petición a la API de Twilio con el código; canal no disponible sin credenciales; si el proveedor falla se descarta la solicitud sin revelarlo | Cuenta y número de Twilio (§8-3) |
+| RB-10 | Recuperación por llamada | BLOQUEADO | **Probado** con `Http::fake()`: llamada con TwiML `<Say language="es-MX">` | Cuenta y número de Twilio (§8-3) |
+| RB-11 | Autorización y rutas protegidas en el backend | PARCIAL | **Probado**: empleado recibe 403 al revertir una venta y al completar tareas ajenas; servicios rechazan ajustes de inventario y reversiones de empleados; invitados redirigidos al login | D-01, pruebas de acceso directo a `/admin` |
 | RB-12 | Medidas OWASP | PARCIAL | CSRF (grupo web), Eloquent con parámetros, encabezados de seguridad, `$hidden`, escape en TwiML | Páginas de error propias, `SESSION_SECURE_COOKIE`/`SESSION_ENCRYPT` para producción, CSP también en local, pruebas |
 | RB-13 | 2–3 patrones de diseño justificados | PARCIAL | **Observer** (`OrdenObserver`, `DetalleOrdenObserver`) · **Repository** (`InventarioRepository`) · **Strategy** (`EstrategiaRecuperacion` y sus 4 canales) | Documentar nombre, propósito, problema, ubicación, clases, ejemplo y justificación en el README |
 | RB-14 | Interfaz atractiva, responsiva y por módulo | PENDIENTE | — | Layout, componentes, todas las pantallas |
 | RB-15 | GitHub Flow, PR, protección de ramas | PARCIAL | Ramas `feature/`, commits semánticos | Plantilla de PR, PR reales, `push`, protección de `main` (requiere `gh auth login`) |
 | RB-16 | Metodología y análisis de riesgos | PARCIAL | Este documento | Mantenerlo en cada sprint |
-| RB-17 | Pruebas verificables | PENDIENTE | Solo pruebas de ejemplo (D-04) | Suite Pest por módulo + CP-01…CP-15 |
+| RB-17 | Pruebas verificables | PARCIAL | 106 pruebas Pest (322 aserciones) en `tests/Feature` y `tests/Unit` | Pruebas de vistas y de `/admin`, CP-07, CP-14, CP-15, ejecución en MySQL |
 | RB-18 | README refleja el estado real | PENDIENTE | README es especificación | Estado real, decisiones, ampliaciones del modelo, patrones, seguridad, instalación |
 | RB-19 | MySQL como gestor | PARCIAL | Migraciones compatibles | Configurar y verificar en MySQL (D-05) |
-| RB-20 | `.env.example` correcto, sin secretos en Git | PARCIAL | `.env` ignorado por Git | D-07 |
+| RB-20 | `.env.example` correcto, sin secretos en Git | CUMPLIDO | `.env` ignorado por Git; `.env.example` con MySQL, Twilio, vencimiento de tokens y contraseña demo vacía (`76a5427`); `git ls-files` no incluye `.env` ni bases SQLite | — |
 
 ---
 
@@ -186,19 +196,19 @@ Se actualiza en cada sprint. Al cierre (Fase 8) se completan las columnas *Prueb
 
 | ID | Caso | Prueba automatizada | Resultado | Fecha | Defecto |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| CP-01 | Acceso válido como gerente | — | No ejecutado | — | D-02 |
-| CP-02 | Bloqueo de ruta administrativa | — | No ejecutado | — | D-01 |
-| CP-03 | Registro de asistencia | — | No ejecutado | — | — |
-| CP-04 | PIN inválido | — | No ejecutado | — | — |
-| CP-05 | Canal de pedido | — | No ejecutado | — | — |
-| CP-06 | Ruteo a estaciones | — | No ejecutado | — | — |
+| CP-01 | Acceso válido como gerente | `LoginControllerTest` | **Parcial**: el login redirige al panel autenticado; el panel aún no se renderiza | 2026-11-10 | D-02 |
+| CP-02 | Bloqueo de ruta administrativa | `OrdenControllerTest` (revertir) | **Parcial**: el empleado recibe 403 en una acción de gerente; `/admin/reportes` no se puede probar | 2026-11-10 | D-01 |
+| CP-03 | Registro de asistencia | `AsistenciaControllerTest` | **Pasa**: entrada y salida del dueño del PIN con hora del servidor (la hora enviada por el navegador se ignora) y turno asignado | 2026-11-10 | — |
+| CP-04 | PIN inválido | `AsistenciaControllerTest` | **Pasa**: «PIN no válido.», sin registro; también con PIN de empleado inactivo | 2026-11-10 | — |
+| CP-05 | Canal de pedido | `OrdenServiceTest`, `PosControllerTest` | **Pasa** (backend): las tres órdenes conservan su canal. Falta ver la etiqueta en POS/KDS | 2026-11-10 | D-02 |
+| CP-06 | Ruteo a estaciones | `KdsServiceTest`, `KdsApiControllerTest` | **Pasa** (backend): cada estación recibe solo su renglón de la misma orden | 2026-11-10 | — |
 | CP-07 | Actualización KDS (con medición) | — | No ejecutado | — | D-02 |
 | CP-08 | Help Mode | — | No ejecutado | — | D-02 |
-| CP-09 | Cálculo de receta | — | No ejecutado | — | — |
-| CP-10 | Protección contra doble descuento | — | No ejecutado | — | D-05 |
-| CP-11 | Movimiento manual autorizado | — | No ejecutado | — | D-01 |
-| CP-12 | Checklist | — | No ejecutado | — | D-01 |
-| CP-13 | Validación de datos | — | No ejecutado | — | — |
+| CP-09 | Cálculo de receta | `CierreVentaServiceTest` | **Pasa**: 3 lattes (18 g café, 200 ml leche) → café 1000 → 946 g; leche 5000 → 4400 ml | 2026-11-10 | — |
+| CP-10 | Protección contra doble descuento | `CierreVentaServiceTest`, `OrdenControllerTest` | **Pasa** en SQLite: el segundo cierre no crea movimientos. Pendiente la prueba concurrente en MySQL | 2026-11-10 | D-05 |
+| CP-11 | Movimiento manual autorizado | `InventarioServiceTest` | **Parcial**: el servicio acepta al gerente y rechaza al empleado; falta la ruta HTTP | 2026-11-10 | D-01 |
+| CP-12 | Checklist | `TareaControllerTest` | **Parcial**: marcar y persistir funciona y se rechazan tareas ajenas; falta la asignación desde `/admin` | 2026-11-10 | D-01 |
+| CP-13 | Validación de datos | `PosControllerTest`, `RecetaServiceTest`, `AsistenciaControllerTest` | **Parcial**: cantidades negativas o cero y campos vacíos rechazados sin guardar; mensajes de Laravel aún en inglés | 2026-11-10 | D-10 |
 | CP-14 | Falla de red | — | No ejecutado | — | RF-15 |
 | CP-15 | Consulta de ventas | — | No ejecutado | — | D-01 |
 
@@ -209,6 +219,7 @@ Se actualiza en cada sprint. Al cierre (Fase 8) se completan las columnas *Prueb
 | 2026-11-10 | `php artisan test --compact` | 1 falla (`ExampleTest`: 302 ≠ 200), 1 pasa |
 | 2026-11-10 | `php artisan route:list --except-vendor` | Falla: no existe `App\Http\Controllers\Admin\UsuarioController` |
 | 2026-11-10 | `php artisan migrate:status` | 7 migraciones ejecutadas (SQLite) |
+| 2026-11-10 | `php artisan test --compact` (después de `270d1e4`) | **106 pasan, 0 fallan** (322 aserciones), SQLite en memoria |
 
 ---
 
@@ -221,37 +232,38 @@ Límite recomendado por el README: 1–2 tarjetas en proceso. Actualmente se exc
 | ID | Tarjeta | Evidencia |
 | :--- | :--- | :--- |
 | B-00 | Especificación del proyecto (README v2) | `448cd3b` |
+| B-14 | Commitear el Sprint 2 en commits semánticos | `dcf164c` … `72a4533` (falta el PR, que pasa a B-31) |
+| B-16 | Base de pruebas: `LazilyRefreshDatabase`, ayudantes de catálogo y 106 pruebas | `270d1e4`; 106/106 pasan |
+| B-25 | Configuración Twilio, `.env.example` (MySQL, nombre, locale, vencimiento de tokens) | `76a5427`; Twilio verificado con `Http::fake` |
 
 ### En revisión/pruebas
 
 | ID | Tarjeta | Prio | Falta para *Terminado* |
 | :--- | :--- | :---: | :--- |
 | B-01 | Modelo relacional, migraciones, modelos, enums y seeders (T-01) | P1 | Ejecutar migraciones y seeders en MySQL; documentar ampliaciones del diccionario |
+| B-04 | Reloj checador con PIN | P1 | Vista del reloj (B-21) |
+| B-05 | POS: creación de órdenes y canal | P1 | Pantalla POS (B-19) |
+| B-08 | Cierre de venta e inventario por receta | P1 | Prueba concurrente en MySQL (B-15); botón de cierre en la UI |
+| B-10 | MFA (TOTP + códigos de recuperación) | Rúbrica | Vistas (B-18, B-21) |
+| B-11 | Multisesiones y cierre remoto | Rúbrica | Vista `cuenta.seguridad` (B-21) |
+| B-12 | Recuperación de contraseña (4 canales) | Rúbrica | Vistas (B-18); SMTP y Twilio reales (§8) |
 
-### En proceso (backend escrito, sin commit, sin vista ni pruebas)
+### En proceso
 
-| ID | Tarjeta | Prio | Tarea README |
-| :--- | :--- | :---: | :--- |
-| B-02 | Login, logout, bloqueo de intentos | P1 | T-02 |
-| B-03 | Autorización: middleware, Gate, Policy | P1 | T-02 |
-| B-04 | Reloj checador con PIN | P1 | T-02 |
-| B-05 | POS: creación de órdenes y canal | P1 | T-03 |
-| B-06 | KDS por estación + polling + API con token | P1 | T-05 |
-| B-07 | Help Mode | P1 | T-06 |
-| B-08 | Cierre de venta e inventario por receta | P1 | T-04 |
-| B-09 | Tareas del empleado | P1 | T-07 |
-| B-10 | MFA (TOTP + códigos de recuperación) | Rúbrica | — |
-| B-11 | Multisesiones y cierre remoto | Rúbrica | — |
-| B-12 | Recuperación de contraseña (4 canales) | Rúbrica | — |
-| B-13 | Reporte de ventas (servicio) | P2 | — |
+| ID | Tarjeta | Prio | Tarea README | Estado |
+| :--- | :--- | :---: | :--- | :--- |
+| B-02 | Login, logout, bloqueo de intentos | P1 | T-02 | Backend probado; falta vista |
+| B-03 | Autorización: middleware, Gate, Policy | P1 | T-02 | Probado en POS/tareas; falta `/admin` (D-01) |
+| B-06 | KDS por estación + polling + API con token | P1 | T-05 | Ruteo y API probados; faltan pantalla y medición |
+| B-07 | Help Mode | P1 | T-06 | Sin pruebas; necesita la vista |
+| B-09 | Tareas del empleado | P1 | T-07 | Completar probado; falta asignación desde `/admin` |
+| B-13 | Reporte de ventas (servicio) | P2 | — | Sin pruebas |
 
 ### Pendiente (orden propuesto)
 
 | ID | Tarjeta | Prio | Depende de |
 | :--- | :--- | :---: | :--- |
-| B-14 | Commitear el Sprint 2 en commits semánticos y abrir PR | Proceso | — |
-| B-15 | Configurar MySQL local y verificar migraciones + seeders | P1 | Credenciales (§8) |
-| B-16 | Habilitar `RefreshDatabase`, reemplazar `ExampleTest`, pruebas de servicios P1 | P1 | B-14 |
+| B-15 | Configurar MySQL local y verificar migraciones, seeders y pruebas críticas | P1 | Credenciales (§8-1) |
 | B-17 | Layout Blade, identidad visual y componentes reutilizables | P1 | — |
 | B-18 | Vistas de acceso: login, desafío MFA, recuperación (3 pasos) | P1 | B-17 |
 | B-19 | Pantalla POS táctil | P1 | B-17 |
@@ -260,13 +272,12 @@ Límite recomendado por el README: 1–2 tarjetas en proceso. Actualmente se exc
 | B-22 | Controladores y vistas `Admin\*` (11) | P1 | B-17 |
 | B-23 | Medición del KDS (RNF-01, CP-07) | P1 | B-20 |
 | B-24 | Casos CP-01…CP-15 y pruebas de acceso directo por rol | P1 | B-18…B-22 |
-| B-25 | `config/services.php` + `.env.example` (Twilio, MySQL, locale `es`, nombre de la app) | Rúbrica | — |
-| B-26 | Emisión y revocación de tokens; vencimiento de Sanctum | Rúbrica | B-22 |
+| B-26 | Emisión y revocación de tokens desde `/admin/tokens` (el vencimiento ya quedó en `76a5427`) | Rúbrica | B-22 |
 | B-27 | Traducciones `lang/es` | P1 | — |
 | B-28 | Indicador de conexión y reintento del KDS (RF-15) | P2 | B-20 |
 | B-29 | Exportación del reporte de ventas | P2 | B-22 |
 | B-30 | Recurrencia y revisión de tareas por el gerente | P2 | B-22 |
-| B-31 | Plantilla de PR, checklist de revisión, protección de `main` | Proceso | `gh auth login` |
+| B-31 | `push`, Pull Requests de los Sprints 1 y 2, plantilla de PR, checklist de revisión y protección de `main` | Proceso | `gh auth login` (§8-6) |
 | B-32 | Actualizar README con el estado real y los patrones | Documentación | B-24 |
 
 ---
@@ -306,11 +317,13 @@ El cronograma de seis semanas del README (§17) se conserva como referencia. No 
 | Objetivo | Roles, reloj checador, POS y requisitos de seguridad de la rúbrica. |
 | Actividades | Backend de autenticación, MFA, sesiones, recuperación, autorización, POS, KDS, cierre de venta, inventario, asistencia, tareas, reportes y API. |
 | Tareas realizadas | Backend de T-02 a T-07 (sin commitear). |
-| Entregables | Pendiente de commit (B-14). |
-| Pruebas | 2026-11-10: suite con 1 falla; `route:list` falla. |
-| Defectos | D-01 a D-04, D-07 a D-12. |
-| Riesgos | R-05, R-08, R-11, R-13. |
+| Entregables | Commits `dcf164c`, `83890fe`, `a2d5de9`, `72a4533` (backend), `76a5427` (correcciones de configuración), `270d1e4` (pruebas). |
+| Resultados | Backend de P1 y de seguridad comprobado con pruebas automatizadas; ninguna pantalla todavía. |
+| Pruebas | Inicio: suite con 1 falla; `route:list` falla. Cierre del incremento (2026-11-10): **106 pruebas pasan** (CP-03, CP-04, CP-05, CP-06, CP-09 y CP-10 pasan; CP-01, CP-02, CP-11, CP-12 y CP-13 parciales). |
+| Defectos | Abiertos: D-01, D-02, D-05, D-06 (parcial), D-09, D-10, D-11, D-13, D-14. Corregidos: D-03, D-04, D-07, D-08, D-12. |
+| Riesgos | R-05, R-08, R-11, R-13 (R-13 mitigado). |
 | Decisiones (tomadas en código, por documentar) | Cierre solo desde «lista» o «entregada»; no se crea ni se cierra una orden sin receta configurada; stock insuficiente bloquea la venta sin permitir saldos negativos; una venta cerrada solo se cancela mediante reversión del gerente; KDS por consulta periódica de 800 ms; MFA con TOTP propio sin dependencias. |
+| Decisiones del incremento 2026-11-10 | Mientras no haya credenciales de MySQL se trabaja en SQLite y las pruebas corren en SQLite en memoria; no se añade dependencia de QR; la cancelación de órdenes por el empleado se mantiene hasta que el responsable decida (D-09). |
 | Pendientes | Ver tablero §6. |
 
 ### Plantilla para los siguientes sprints
@@ -351,7 +364,7 @@ El cronograma de seis semanas del README (§17) se conserva como referencia. No 
 | R-01 | Falla de red en hora pico | Media | Alto | Probar reconexión | Indicador de conexión en KDS (B-28) | Comunicar la incidencia; ticket solo con impresora configurada | Abierto, sin mitigación implementada |
 | R-02 | Órdenes no llegan al KDS a tiempo | Media | Alto | Polling de 800 ms con huella de versión (no reenvía HTML si nada cambió) | Medir (B-23) antes de decidir Reverb | Reducir intervalo o usar Reverb | Abierto, sin medición |
 | R-03 | Recetas o unidades incompatibles | Media | Alto | Unidad base por ingrediente; conversión validada | `RecetaService` rechaza unidades incompatibles y duplicados | Nueva versión de receta + ajuste autorizado | Mitigado en código, sin pruebas |
-| R-04 | Doble descuento por reintento | Media | Alto | Cierre transaccional e idempotente | `lockForUpdate`, verificación previa e índice único | Revisar historial antes de ajustar | Mitigado en código; falta validar en MySQL |
+| R-04 | Doble descuento por reintento | Media | Alto | Cierre transaccional e idempotente | `lockForUpdate`, verificación previa e índice único | Revisar historial antes de ajustar | Mitigado y probado en SQLite (CP-10); falta la prueba concurrente en MySQL |
 | R-05 | Empleado accede a funciones de gerente | Baja/Media | Alto | `rol:gerente` + verificación en servicios | Pruebas de acceso directo (B-24) | Revocar sesión y corregir permiso | Abierto (rutas admin rotas, D-01) |
 | R-06 | PIN compartido o ambiguo | Media | Medio | PIN único por usuario (índice HMAC único) | Límite de intentos por IP | Reemplazar el PIN comprometido | Mitigado en código, sin pruebas |
 | R-07 | Interfaz compleja para el personal | Media | Bajo/Medio | Controles grandes, etiquetas directas | Help Mode contextual | Simplificar pantallas | Abierto (no hay UI) |
@@ -360,7 +373,7 @@ El cronograma de seis semanas del README (§17) se conserva como referencia. No 
 | R-10 | Asistencias o tareas no se guardan | Media | Medio | Transacciones y validación de secuencia | Pruebas de persistencia (B-24) | Corregir y repetir con varios empleados | Abierto |
 | R-11 | Proveedores externos (SMTP, Twilio) no disponibles | Alta | Alto | Canales que se declaran «no disponibles» sin credenciales | Variables de entorno; pruebas con fakes | Declarar BLOQUEADO y documentar cómo verificarlo | **Nuevo** — abierto |
 | R-12 | Entorno SQLite distinto del gestor objetivo MySQL | Alta | Medio | Migraciones sin SQL específico de un motor | Migrar `.env` a MySQL (B-15) | Ejecutar las pruebas críticas en MySQL antes de la entrega | **Nuevo** — abierto |
-| R-13 | Pérdida del trabajo sin commitear | Media | Alto | Commits pequeños y frecuentes | Commitear el Sprint 2 (B-14) | — | **Nuevo** — abierto |
+| R-13 | Pérdida del trabajo sin commitear | Media | Alto | Commits pequeños y frecuentes | Commitear el Sprint 2 (B-14) | `push` a GitHub para tener copia remota | **Mitigado** el 2026-11-10 (commits locales); falta `push` |
 
 ---
 
@@ -369,3 +382,4 @@ El cronograma de seis semanas del README (§17) se conserva como referencia. No 
 | Fecha | Actividad | Resultado | Siguiente paso |
 | :--- | :--- | :--- | :--- |
 | 2026-11-10 | Auditoría inicial (Fase 1) y diagnóstico (Fase 2): lectura completa del README, revisión de migraciones, modelos, servicios, controladores, rutas, configuración y Git; ejecución de pruebas, `route:list` y `migrate:status`. Sin cambios de código. | Se creó este documento; 13 defectos registrados; ningún criterio en estado CUMPLIDO. | Resolver las decisiones §8 (1, 4 y 6) y ejecutar B-14 → B-16 → B-17. |
+| 2026-11-10 | Incremento 1 del Sprint 2: Pint + 4 commits `feat:` del backend; corrección de D-03, D-07, D-08 y D-12; base de pruebas con 106 casos. Durante las pruebas se confirmó que el cierre remoto de sesión invalida una cookie real (200 → 401). | 106/106 pruebas pasan; RB-20 CUMPLIDO; 6 casos CP pasan y 5 parciales. | B-17: layout y sistema visual; después B-18 a B-22 (pantallas P1 y `/admin`). |
