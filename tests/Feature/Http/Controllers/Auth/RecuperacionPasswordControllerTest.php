@@ -146,3 +146,16 @@ it('discards the request when the provider fails, without revealing it', functio
 
     expect(RecuperacionPassword::first()->usado_en)->not->toBeNull();
 });
+
+it('marks the channels without a configured provider as unavailable', function () {
+    $this->get(route('recuperacion.solicitar'))
+        ->assertOk()
+        ->assertSee('Pregunta secreta')
+        ->assertSee('No configurado en este servidor');
+});
+
+it('shows the secret question of the account in the verification step', function () {
+    solicitarRecuperacion('brenda', 'pregunta');
+
+    $this->get(route('recuperacion.verificar'))->assertOk()->assertSee('¿Nombre de tu primera mascota?');
+});

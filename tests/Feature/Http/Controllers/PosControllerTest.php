@@ -55,3 +55,16 @@ it('reports missing ingredients as a validation error', function () {
 it('redirects guests to the login', function () {
     $this->post(route('pos.ordenes.store'), [])->assertRedirect(route('login'));
 });
+
+it('renders the catalog grouped by station with availability', function () {
+    productoConReceta([[Ingrediente::factory()->create(['stock_actual' => '0.000']), '1.000']]);
+
+    $response = $this->actingAs($this->cajero)->get(route('pos.index'));
+
+    $response->assertOk()
+        ->assertSee($this->latte->estacion->nombre)
+        ->assertSee($this->latte->nombre)
+        ->assertSee('$55.00')
+        ->assertSee('Agotado')
+        ->assertSee('Drive-Thru');
+});

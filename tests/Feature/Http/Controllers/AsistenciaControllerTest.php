@@ -81,3 +81,12 @@ it('redirects guests to the login', function () {
 
     expect(Asistencia::count())->toBe(0);
 });
+
+it('renders the clock with the records of the day', function () {
+    $this->actingAs($this->terminal)->post(route('asistencia.store'), ['pin' => '4821', 'tipo' => 'entrada']);
+
+    $this->get(route('asistencia.index'))
+        ->assertOk()
+        ->assertSee('Marcas de hoy')
+        ->assertSee('Brenda');
+});

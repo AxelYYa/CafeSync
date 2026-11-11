@@ -67,3 +67,30 @@ it('does not cancel a closed sale through the regular cancel action', function (
 
     expect($this->orden->fresh()->estado)->toBe(EstadoOrden::Cerrada);
 });
+
+it('lists the orders in progress with their channel and actions', function () {
+    $this->actingAs($this->cajero)->get(route('ordenes.index'))
+        ->assertOk()
+        ->assertSee($this->orden->folio)
+        ->assertSee('Lista para entrega')
+        ->assertSee('Cerrar venta');
+});
+
+it('shows the order history and the inventory movements of a closed sale', function () {
+    app(CierreVentaService::class)->cerrar($this->orden, $this->cajero);
+
+    $this->actingAs($this->gerente)->get(route('ordenes.show', $this->orden))
+        ->assertOk()
+        ->assertSee('Historial de estados')
+        ->assertSee($this->cafe->nombre)
+        ->assertSee('Consumo por venta')
+        ->assertSee('Revertir venta');
+});
+
+it('does not offer the revert action to employees', function () {
+    app(CierreVentaService::class)->cerrar($this->orden, $this->cajero);
+
+    $this->actingAs($this->cajero)->get(route('ordenes.show', $this->orden))
+        ->assertOk()
+        ->assertDontSee('Revertir venta');
+});

@@ -112,3 +112,7 @@ it('signs out and invalidates the session', function () {
     $response->assertRedirect(route('login'));
     $this->assertGuest();
 });
+
+it('renders the login form', function () {
+    $this->get(route('login'))->assertOk()->assertSee('Usuario o correo');
+});
