@@ -81,17 +81,22 @@ class Usuario extends Authenticatable
 
     public function esGerente(): bool
     {
-        return $this->rol?->nombre === NombreRol::Gerente->value;
+        return $this->nombreRol() === NombreRol::Gerente->value;
     }
 
     public function esEmpleado(): bool
     {
-        return $this->rol?->nombre === NombreRol::Empleado->value;
+        return $this->nombreRol() === NombreRol::Empleado->value;
     }
 
     public function tieneRol(string ...$roles): bool
     {
-        return in_array($this->rol?->nombre, $roles, true);
+        return in_array($this->nombreRol(), $roles, true);
+    }
+
+    private function nombreRol(): ?string
+    {
+        return $this->loadMissing('rol')->rol?->nombre;
     }
 
     public function tieneMfaActivo(): bool
