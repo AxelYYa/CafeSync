@@ -5,7 +5,113 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/*
+| Identidad CaféSync: tonos de espresso y crema, caramelo como acento.
+| Los estados operativos siempre se acompañan de texto o icono (README §18.3).
+*/
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Segoe UI', ui-sans-serif, system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    --color-espresso-950: #170f0a;
+    --color-espresso-900: #241810;
+    --color-espresso-800: #352419;
+    --color-espresso-700: #4c3324;
+    --color-espresso-600: #6b4a35;
+    --color-espresso-500: #8c6a52;
+    --color-crema-50: #fcf9f4;
+    --color-crema-100: #f6efe4;
+    --color-crema-200: #ecdfcb;
+    --color-crema-300: #dcc8aa;
+    --color-caramelo-400: #e9a24f;
+    --color-caramelo-500: #d98a2b;
+    --color-caramelo-600: #b96f17;
+    --color-caramelo-700: #925611;
+
+    --color-mostrador: #57534e;
+    --color-drive: #1d4ed8;
+    --color-delivery: #c2410c;
+}
+
+@layer base {
+    html {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        @apply bg-crema-50 text-espresso-900 antialiased;
+    }
+
+    :focus-visible {
+        @apply outline-3 outline-offset-2 outline-caramelo-500;
+    }
+
+    dialog::backdrop {
+        @apply bg-espresso-950/60 backdrop-blur-sm;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition select-none disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-lg {
+        @apply min-h-14 px-6 text-base;
+    }
+
+    .btn-primario {
+        @apply bg-espresso-800 text-crema-50 shadow-sm hover:bg-espresso-700 active:bg-espresso-900;
+    }
+
+    .btn-acento {
+        @apply bg-caramelo-500 text-espresso-950 shadow-sm hover:bg-caramelo-400 active:bg-caramelo-600;
+    }
+
+    .btn-secundario {
+        @apply border border-crema-300 bg-white text-espresso-800 hover:bg-crema-100 active:bg-crema-200;
+    }
+
+    .btn-exito {
+        @apply bg-emerald-700 text-white shadow-sm hover:bg-emerald-600 active:bg-emerald-800;
+    }
+
+    .btn-peligro {
+        @apply bg-red-700 text-white shadow-sm hover:bg-red-600 active:bg-red-800;
+    }
+
+    .btn-fantasma {
+        @apply text-espresso-700 hover:bg-crema-100;
+    }
+
+    .tarjeta {
+        @apply rounded-2xl border border-crema-200 bg-white shadow-sm;
+    }
+
+    .etiqueta {
+        @apply mb-1.5 block text-sm font-semibold text-espresso-800;
+    }
+
+    .campo {
+        @apply block min-h-11 w-full rounded-xl border border-crema-300 bg-white px-3.5 py-2 text-espresso-900 placeholder:text-espresso-500/60 focus:border-caramelo-500 focus:ring-2 focus:ring-caramelo-500/30 focus:outline-none aria-invalid:border-red-600;
+    }
+
+    .insignia {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold tracking-wide uppercase;
+    }
+
+    .tabla {
+        @apply w-full text-left text-sm;
+    }
+
+    .tabla th {
+        @apply border-b border-crema-200 bg-crema-100/60 px-4 py-3 text-xs font-bold tracking-wide text-espresso-600 uppercase;
+    }
+
+    .tabla td {
+        @apply border-b border-crema-100 px-4 py-3 align-middle;
+    }
+
+    .tabla tbody tr:hover {
+        @apply bg-crema-50;
+    }
 }
