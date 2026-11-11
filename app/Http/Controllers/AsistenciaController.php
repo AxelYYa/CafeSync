@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TipoAsistencia;
+use App\Exceptions\PinInvalidoException;
 use App\Exceptions\ReglaNegocioException;
 use App\Models\Asistencia;
 use App\Services\Asistencia\AsistenciaService;
@@ -49,11 +50,11 @@ class AsistenciaController extends Controller
 
         try {
             $marca = $this->asistencia->registrar($datos['pin'], TipoAsistencia::from($datos['tipo']));
-        } catch (ReglaNegocioException $error) {
-            if ($error->getMessage() === 'PIN no válido.') {
-                RateLimiter::hit($clave, 60);
-            }
+        } catch (PinInvalidoException $error) {
+            RateLimiter::hit($clave, 60);
 
+            throw ValidationException::withMessages(['pin' => $error->getMessage()]);
+        } catch (ReglaNegocioException $error) {
             throw ValidationException::withMessages(['pin' => $error->getMessage()]);
         }
 

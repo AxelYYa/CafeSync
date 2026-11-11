@@ -3,6 +3,7 @@
 namespace App\Services\Asistencia;
 
 use App\Enums\TipoAsistencia;
+use App\Exceptions\PinInvalidoException;
 use App\Exceptions\ReglaNegocioException;
 use App\Models\Asistencia;
 use App\Models\Turno;
@@ -25,7 +26,7 @@ class AsistenciaService
         $usuario = $this->pines->resolver($pin);
 
         if ($usuario === null) {
-            throw new ReglaNegocioException('PIN no válido.');
+            throw new PinInvalidoException;
         }
 
         return DB::transaction(function () use ($usuario, $tipo): Asistencia {
