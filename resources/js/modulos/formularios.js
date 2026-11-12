@@ -1,5 +1,6 @@
 /**
  * - data-confirmar (en el formulario o en el botón): pide confirmación antes de una operación importante.
+ * - data-confirmar-si-desactiva: pide confirmación solo si se desmarcó la casilla «activo».
  * - data-enviar-una-vez: evita el doble envío por doble toque. El servidor sigue siendo idempotente;
  *   esto solo mejora la experiencia en pantallas táctiles.
  */
@@ -11,7 +12,8 @@ export function iniciarFormularios() {
             return;
         }
 
-        const mensaje = evento.submitter?.dataset.confirmar ?? formulario.dataset.confirmar;
+        const desactiva = formulario.dataset.confirmarSiDesactiva && !formulario.querySelector('input[type="checkbox"][name="activo"]')?.checked;
+        const mensaje = evento.submitter?.dataset.confirmar ?? formulario.dataset.confirmar ?? (desactiva ? formulario.dataset.confirmarSiDesactiva : undefined);
 
         if (mensaje && !window.confirm(mensaje)) {
             evento.preventDefault();

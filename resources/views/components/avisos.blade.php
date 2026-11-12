@@ -1,5 +1,5 @@
 {{-- Mensajes de resultado: confirmación (session 'estado') y errores generales que no pertenecen a un campo. --}}
-@props(['camposGenerales' => ['orden', 'kds', 'sesiones', 'mfa', 'items']])
+@props(['camposGenerales' => ['orden', 'kds', 'sesiones', 'mfa', 'items', 'usuario']])
 
 @if (session('estado'))
     <div role="status" data-aviso class="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900">
