@@ -48,7 +48,7 @@
                     @csrf
                     @method('DELETE')
                     <div class="min-w-64 flex-1">
-                        <x-campo nombre="password_actual" id="password-sesiones" etiqueta="Confirma tu contraseña para cerrar todas las demás" tipo="password" autocomplete="current-password" required />
+                        <x-campo nombre="password_actual" id="password-sesiones" bolsa="sesiones" etiqueta="Confirma tu contraseña para cerrar todas las demás" tipo="password" autocomplete="current-password" required />
                     </div>
                     <button type="submit" class="btn btn-peligro">Cerrar las demás sesiones</button>
                 </form>
@@ -74,7 +74,7 @@
                 <p class="text-sm">Te quedan <strong>{{ $codigosRestantes }}</strong> códigos de recuperación.</p>
                 <form method="POST" action="{{ route('mfa.codigos') }}" class="flex flex-col gap-3" data-enviar-una-vez>
                     @csrf
-                    <x-campo nombre="password_actual" id="password-codigos" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
+                    <x-campo nombre="password_actual" id="password-codigos" bolsa="mfa" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
                     <div class="flex flex-wrap gap-2">
                         <button type="submit" class="btn btn-secundario">Generar códigos nuevos</button>
                         <button type="submit" formaction="{{ route('mfa.desactivar') }}" name="_method" value="DELETE" class="btn btn-fantasma text-red-700"
@@ -93,7 +93,7 @@
                 <form method="POST" action="{{ route('mfa.confirmar') }}" class="flex flex-wrap items-end gap-3" data-enviar-una-vez>
                     @csrf
                     <div class="w-40">
-                        <x-campo nombre="codigo" etiqueta="Código" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required class="text-center tracking-widest" />
+                        <x-campo nombre="codigo" bolsa="mfa" etiqueta="Código" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required class="text-center tracking-widest" />
                     </div>
                     <button type="submit" class="btn btn-primario">Activar</button>
                 </form>
@@ -111,9 +111,9 @@
             <form method="POST" action="{{ route('cuenta.password') }}" class="mt-4 flex flex-col gap-4" data-enviar-una-vez>
                 @csrf
                 @method('PUT')
-                <x-campo nombre="password_actual" id="password-actual-cambio" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
-                <x-campo nombre="password" etiqueta="Nueva contraseña" tipo="password" autocomplete="new-password" required ayuda="Mínimo 10 caracteres, con mayúsculas, minúsculas y números." />
-                <x-campo nombre="password_confirmation" etiqueta="Confirma la nueva contraseña" tipo="password" autocomplete="new-password" required />
+                <x-campo nombre="password_actual" id="password-actual-cambio" bolsa="password" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
+                <x-campo nombre="password" bolsa="password" etiqueta="Nueva contraseña" tipo="password" autocomplete="new-password" required ayuda="Mínimo 10 caracteres, con mayúsculas, minúsculas y números." />
+                <x-campo nombre="password_confirmation" bolsa="password" etiqueta="Confirma la nueva contraseña" tipo="password" autocomplete="new-password" required />
                 <button type="submit" class="btn btn-primario self-start">Guardar contraseña</button>
             </form>
         </section>
@@ -124,11 +124,11 @@
             <form method="POST" action="{{ route('cuenta.recuperacion') }}" class="mt-4 flex flex-col gap-4" data-enviar-una-vez>
                 @csrf
                 @method('PUT')
-                <x-campo nombre="telefono" etiqueta="Teléfono para SMS o llamada" tipo="tel" :valor="$usuario->telefono" placeholder="+528711234567" ayuda="Formato internacional con +, sin espacios." />
-                <x-campo nombre="pregunta_secreta" etiqueta="Pregunta secreta" :valor="$usuario->pregunta_secreta" maxlength="160" placeholder="¿Nombre de tu primera mascota?" />
-                <x-campo nombre="respuesta_secreta" etiqueta="Respuesta" tipo="password" autocomplete="off" maxlength="120"
+                <x-campo nombre="telefono" bolsa="recuperacion" etiqueta="Teléfono para SMS o llamada" tipo="tel" :valor="$usuario->telefono" placeholder="+528711234567" ayuda="Formato internacional con +, sin espacios." />
+                <x-campo nombre="pregunta_secreta" bolsa="recuperacion" etiqueta="Pregunta secreta" :valor="$usuario->pregunta_secreta" maxlength="160" placeholder="¿Nombre de tu primera mascota?" />
+                <x-campo nombre="respuesta_secreta" bolsa="recuperacion" etiqueta="Respuesta" tipo="password" autocomplete="off" maxlength="120"
                          :ayuda="$usuario->tienePreguntaSecreta() ? 'Ya tienes una respuesta guardada; escribe una nueva solo si quieres cambiarla.' : null" />
-                <x-campo nombre="password_actual" id="password-recuperacion" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
+                <x-campo nombre="password_actual" id="password-recuperacion" bolsa="recuperacion" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
                 <button type="submit" class="btn btn-primario self-start">Guardar datos</button>
             </form>
         </section>
@@ -139,9 +139,9 @@
             <form method="POST" action="{{ route('cuenta.pin') }}" class="mt-4 flex flex-col gap-4" data-enviar-una-vez>
                 @csrf
                 @method('PUT')
-                <x-campo nombre="pin" etiqueta="Nuevo PIN (4 a 6 dígitos)" tipo="password" inputmode="numeric" autocomplete="off" maxlength="6" required />
-                <x-campo nombre="pin_confirmation" etiqueta="Confirma el PIN" tipo="password" inputmode="numeric" autocomplete="off" maxlength="6" required />
-                <x-campo nombre="password_actual" id="password-pin" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
+                <x-campo nombre="pin" bolsa="pin" etiqueta="Nuevo PIN (4 a 6 dígitos)" tipo="password" inputmode="numeric" autocomplete="off" maxlength="6" required />
+                <x-campo nombre="pin_confirmation" bolsa="pin" etiqueta="Confirma el PIN" tipo="password" inputmode="numeric" autocomplete="off" maxlength="6" required />
+                <x-campo nombre="password_actual" id="password-pin" bolsa="pin" etiqueta="Contraseña actual" tipo="password" autocomplete="current-password" required />
                 <button type="submit" class="btn btn-primario self-start">Guardar PIN</button>
             </form>
         </section>

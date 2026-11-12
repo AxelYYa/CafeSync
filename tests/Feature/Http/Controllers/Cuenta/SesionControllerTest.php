@@ -61,7 +61,7 @@ it('requires the current password to close the other sessions', function () {
     registrarSesion('celular', $this->usuario);
 
     $this->actingAs($this->usuario)->delete(route('sesiones.destroy-otras'), ['password_actual' => 'incorrecta'])
-        ->assertSessionHasErrors('password_actual');
+        ->assertSessionHasErrorsIn('sesiones', 'password_actual');
 
     $this->assertDatabaseHas('sessions', ['id' => 'celular']);
 });

@@ -28,12 +28,12 @@ class MfaController extends Controller
 
     public function confirmar(Request $request): RedirectResponse
     {
-        $datos = $request->validate(['codigo' => ['required', 'string', 'max:10']]);
+        $datos = $request->validateWithBag('mfa', ['codigo' => ['required', 'string', 'max:10']]);
 
         $clave = 'mfa-activar|'.$request->user()->id_usuario;
 
         if (RateLimiter::tooManyAttempts($clave, 5)) {
-            throw ValidationException::withMessages(['codigo' => 'Demasiados intentos. Espera unos minutos.']);
+            throw ValidationException::withMessages(['codigo' => 'Demasiados intentos. Espera unos minutos.'])->errorBag('mfa');
         }
 
         $codigos = $this->mfa->confirmarActivacion($request->user(), $datos['codigo']);
@@ -41,7 +41,7 @@ class MfaController extends Controller
         if ($codigos === null) {
             RateLimiter::hit($clave, 300);
 
-            throw ValidationException::withMessages(['codigo' => 'El código no es válido. Revisa la hora de tu dispositivo.']);
+            throw ValidationException::withMessages(['codigo' => 'El código no es válido. Revisa la hora de tu dispositivo.'])->errorBag('mfa');
         }
 
         RateLimiter::clear($clave);
@@ -53,7 +53,7 @@ class MfaController extends Controller
 
     public function regenerarCodigos(Request $request): RedirectResponse
     {
-        $request->validate(['password_actual' => ['required', 'current_password']]);
+        $request->validateWithBag('mfa', ['password_actual' => ['required', 'current_password']]);
 
         if (! $request->user()->tieneMfaActivo()) {
             return back()->withErrors(['mfa' => 'Activa primero la verificación en dos pasos.']);
@@ -66,7 +66,7 @@ class MfaController extends Controller
 
     public function desactivar(Request $request): RedirectResponse
     {
-        $request->validate(['password_actual' => ['required', 'current_password']]);
+        $request->validateWithBag('mfa', ['password_actual' => ['required', 'current_password']]);
 
         $this->mfa->desactivar($request->user());
 

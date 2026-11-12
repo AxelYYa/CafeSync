@@ -26,7 +26,7 @@ class SesionController extends Controller
 
     public function destroyOtras(Request $request): RedirectResponse
     {
-        $request->validate(['password_actual' => ['required', 'current_password']]);
+        $request->validateWithBag('sesiones', ['password_actual' => ['required', 'current_password']]);
 
         $cerradas = $this->sesiones->cerrarTodasExcepto($request->user(), $request->session()->getId());
 

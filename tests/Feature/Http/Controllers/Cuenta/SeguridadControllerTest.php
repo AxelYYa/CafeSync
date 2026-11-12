@@ -45,7 +45,7 @@ it('rejects a PIN that another employee already uses', function () {
     Usuario::factory()->conPin('5831')->create();
 
     $this->actingAs($this->usuario)->put(route('cuenta.pin'), ['pin' => '5831', 'pin_confirmation' => '5831', 'password_actual' => 'password'])
-        ->assertSessionHasErrors(['pin' => 'Ese PIN no está disponible. Elige otro.']);
+        ->assertSessionHasErrorsIn('pin', ['pin' => 'Ese PIN no está disponible. Elige otro.']);
 
     expect($this->usuario->fresh()->pin_hash)->toBeNull();
 });
@@ -64,7 +64,7 @@ it('stores the secret answer as a hash', function () {
 
 it('rejects a phone number without international format', function () {
     $this->actingAs($this->usuario)->put(route('cuenta.recuperacion'), ['password_actual' => 'password', 'telefono' => '8711234567'])
-        ->assertSessionHasErrors(['telefono' => 'Escribe el teléfono en formato internacional, por ejemplo +528711234567.']);
+        ->assertSessionHasErrorsIn('recuperacion', ['telefono' => 'Escribe el teléfono en formato internacional, por ejemplo +528711234567.']);
 });
 
 it('closes the other sessions after changing the password', function () {
@@ -81,7 +81,15 @@ it('closes the other sessions after changing the password', function () {
 it('rejects a weak new password', function () {
     $this->actingAs($this->usuario)->put(route('cuenta.password'), [
         'password_actual' => 'password', 'password' => 'corta', 'password_confirmation' => 'corta',
-    ])->assertSessionHasErrors('password');
+    ])->assertSessionHasErrorsIn('password', 'password');
 
     expect(Hash::check('password', $this->usuario->fresh()->password))->toBeTrue();
+});
+
+it('shows a form error only in the form that caused it', function () {
+    $this->actingAs($this->usuario)->put(route('cuenta.pin'), ['pin' => '5831', 'pin_confirmation' => '5831', 'password_actual' => 'incorrecta']);
+
+    $pagina = $this->get(route('cuenta.seguridad'))->assertOk()->getContent();
+
+    expect(substr_count($pagina, 'La contraseña actual no es correcta.'))->toBe(1);
 });

@@ -39,7 +39,7 @@ class SeguridadController extends Controller
 
     public function actualizarPassword(Request $request): RedirectResponse
     {
-        $datos = $request->validate([
+        $datos = $request->validateWithBag('password', [
             'password_actual' => ['required', 'current_password'],
             'password' => ['required', 'confirmed', 'different:password_actual', Password::defaults()],
         ]);
@@ -55,7 +55,7 @@ class SeguridadController extends Controller
     {
         $usuario = $request->user();
 
-        $datos = $request->validate([
+        $datos = $request->validateWithBag('recuperacion', [
             'password_actual' => ['required', 'current_password'],
             'telefono' => ['nullable', 'string', 'regex:/^\+[1-9]\d{7,14}$/'],
             'pregunta_secreta' => ['nullable', 'string', 'min:8', 'max:160', 'required_with:respuesta_secreta'],
@@ -78,13 +78,13 @@ class SeguridadController extends Controller
 
     public function actualizarPin(Request $request): RedirectResponse
     {
-        $datos = $request->validate([
+        $datos = $request->validateWithBag('pin', [
             'password_actual' => ['required', 'current_password'],
             'pin' => ['required', 'digits_between:4,6', 'confirmed'],
         ]);
 
         if (! $this->pines->pinDisponible($datos['pin'], $request->user()->id_usuario)) {
-            return back()->withErrors(['pin' => 'Ese PIN no está disponible. Elige otro.']);
+            return back()->withErrors(['pin' => 'Ese PIN no está disponible. Elige otro.'], 'pin');
         }
 
         $this->pines->asignar($request->user(), $datos['pin']);
