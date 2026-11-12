@@ -51,7 +51,7 @@ class OrdenService
 
         return DB::transaction(function () use ($cajero, $canal, $cantidades, $productos, $nota): Orden {
             $orden = Orden::create([
-                'folio' => 'TMP-'.Str::uuid(),
+                'folio' => 'TMP'.Str::ulid(), // 29 caracteres: cabe en VARCHAR(30) hasta asignar el folio definitivo.
                 'id_usuario' => $cajero->id_usuario,
                 'canal_origen' => $canal,
                 'estado' => EstadoOrden::Capturada,
