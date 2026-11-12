@@ -28,10 +28,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    | Twilio Verify: Twilio genera, envía (SMS o llamada) y valida el código de recuperación.
+    | Se autentica con una API Key (SID + secreto) de la cuenta; los secretos solo viven en .env.
+    */
     'twilio' => [
-        'sid' => env('TWILIO_SID'),
-        'token' => env('TWILIO_TOKEN'),
-        'from' => env('TWILIO_FROM'),
+        'account_sid' => env('TWILIO_ACCOUNT_SID'),
+        'api_key' => env('TWILIO_API_KEY'),
+        'api_secret' => env('TWILIO_API_SECRET'),
+        'verify_service_sid' => env('TWILIO_VERIFY_SERVICE_SID'),
+        'locale' => env('TWILIO_VERIFY_LOCALE', 'es'),
     ],
 
     'slack' => [

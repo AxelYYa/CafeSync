@@ -3,29 +3,16 @@
 namespace App\Services\Recuperacion;
 
 use App\Enums\CanalRecuperacion;
-use App\Models\Usuario;
 
-class RecuperacionPorLlamada extends EstrategiaConCodigo
+class RecuperacionPorLlamada extends EstrategiaConTwilioVerify
 {
-    public function __construct(private readonly ProveedorTelefonia $proveedor) {}
-
     public function canal(): CanalRecuperacion
     {
         return CanalRecuperacion::Llamada;
     }
 
-    public function disponible(): bool
+    protected function canalTwilio(): string
     {
-        return $this->proveedor->configurado();
-    }
-
-    public function aplicaA(Usuario $usuario): bool
-    {
-        return filled($usuario->telefono);
-    }
-
-    protected function enviarCodigo(Usuario $usuario, string $codigo): void
-    {
-        $this->proveedor->llamarConCodigo($usuario->telefono, $codigo);
+        return ProveedorTelefonia::CANAL_LLAMADA;
     }
 }
