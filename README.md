@@ -17,7 +17,7 @@
 > **Estado del documento:** especificación y planificación técnica. Las funciones, diagramas y tablas descritos aquí representan el diseño previsto; no deben considerarse implementados o probados hasta que exista evidencia del desarrollo.
 
 > [!TIP]
-> **Estado de implementación (11 de noviembre de 2026):** el proyecto está en el **Sprint 2 — Acceso y POS**, en revisión de cierre. El hito del sprint (*una orden puede crearse con sus productos y canal y queda almacenada*) y los requisitos de acceso de la rúbrica están implementados y cubiertos por **212 pruebas automatizadas que pasan**; el envío real de correo, SMS y llamada, la base MySQL y la publicación en GitHub siguen bloqueados por credenciales externas. El avance real, los casos de prueba, los defectos, los riesgos y los pendientes se registran en [`SEGUIMIENTO.md`](SEGUIMIENTO.md). Las secciones agregadas en este cierre son §11.4, §13.6, §19.4, §23.16, §27.7 y §28.4.
+> **Estado de implementación (11 de noviembre de 2026):** el proyecto está en el **Sprint 2 — Acceso y POS**, en revisión de cierre. El hito del sprint (*una orden puede crearse con sus productos y canal y queda almacenada*) y los requisitos de acceso de la rúbrica están implementados y cubiertos por **217 pruebas automatizadas que pasan en SQLite y en MySQL**. El correo se prueba con el sandbox SMTP de Mailtrap; el SMS y la llamada (Twilio Verify) esperan la regeneración de su API Key, y la publicación en GitHub espera acceso con `gh`. El avance real, los casos de prueba, los defectos, los riesgos y los pendientes se registran en [`SEGUIMIENTO.md`](SEGUIMIENTO.md). Las secciones agregadas en este cierre son §11.4, §13.6, §19.4, §23.16, §27.7, §27.8 y §28.4.
 
 | Ficha del proyecto | Información |
 | :--- | :--- |
@@ -504,7 +504,7 @@ Los puntos por confirmar se resolvieron así en el código (registro en `SEGUIMI
 | Ingredientes insuficientes | Se rechaza la orden al crearla y se vuelve a validar al cerrar; nunca se permite un saldo negativo. Si falla al cerrar, no se guarda ningún movimiento. | `RequerimientosService`, `InventarioRepository` |
 | Momento del descuento | Solo al cerrar la venta, desde los estados «lista» o «entregada». Crear la orden no descuenta. | `CierreVentaService` |
 | Cerrar dos veces | La segunda solicitud no hace nada (idempotente) y se informa que ya estaba cerrada. | `CierreVentaService`, índice único `movimientos_consumo_unico` |
-| Cancelar antes de cerrar | Cualquier usuario autenticado puede cancelar una orden en curso; no afecta el inventario. *Pendiente de confirmación del responsable.* | `OrdenService::cancelar` |
+| Cancelar antes de cerrar | Cualquier usuario autenticado, incluido el empleado, puede cancelar una orden en curso; no afecta el inventario. Confirmado por el responsable el 11-nov-2026. | `OrdenService::cancelar` |
 | Cancelar una venta cerrada | Solo el gerente, mediante una reversión con motivo que devuelve los ingredientes con movimientos de tipo `reversion`. | `CierreVentaService::revertir` |
 | Estados de preparación | Solo avanzan un paso: pendiente → en preparación → lista. Cuando todos los renglones están listos, la orden pasa a «lista». | `EstadoPreparacion`, `DetalleOrdenObserver` |
 | Asistencia | Debe alternar entrada y salida; un PIN inválido o de una cuenta inactiva no genera registro. | `AsistenciaService` |
@@ -629,7 +629,7 @@ MVC es la arquitectura general. **Middleware** y **transacciones** se usan como 
 | **Propósito** | Reaccionar a cambios de una entidad sin que quien la modifica tenga que saberlo. | Concentrar la persistencia de existencias y movimientos en un solo lugar. | Elegir en tiempo de ejecución cómo se verifica la identidad al recuperar la contraseña. |
 | **Problema que resuelve** | Cada cambio de estado de una orden debe quedar en el historial, y la orden debe pasar a «lista» cuando todas sus estaciones terminan. Sin el patrón, cada servicio tendría que recordarlo. | El saldo de un ingrediente debe cambiar siempre junto con su movimiento y nunca quedar negativo, venga el cambio de una venta, de una reversión o de un ajuste. | Hay cuatro canales (correo, pregunta, SMS, llamada) con pasos distintos, pero el flujo (solicitar → verificar → restablecer) y sus protecciones son los mismos. |
 | **Ubicación** | `app/Observers/` | `app/Repositories/` | `app/Services/Recuperacion/` |
-| **Clases** | `OrdenObserver`, `DetalleOrdenObserver`, registrados en `AppServiceProvider` | `InventarioRepository`, usado por `CierreVentaService` e `InventarioService` | `EstrategiaRecuperacion` (interfaz), `EstrategiaConCodigo`, `RecuperacionPorCorreo`, `RecuperacionPorPregunta`, `RecuperacionPorSms`, `RecuperacionPorLlamada`; contexto `RecuperacionPasswordService` |
+| **Clases** | `OrdenObserver`, `DetalleOrdenObserver`, registrados en `AppServiceProvider` | `InventarioRepository`, usado por `CierreVentaService` e `InventarioService` | `EstrategiaRecuperacion` (interfaz); `EstrategiaConCodigo` → `RecuperacionPorCorreo`; `EstrategiaConTwilioVerify` → `RecuperacionPorSms`, `RecuperacionPorLlamada`; `RecuperacionPorPregunta`; contexto `RecuperacionPasswordService` |
 | **Ejemplo** | `PreparacionService` solo cambia el estado de un renglón; `DetalleOrdenObserver` detecta que ya no quedan pendientes y marca la orden; `OrdenObserver` guarda el historial. | `CierreVentaService` llama a `registrarMovimiento()`, que actualiza `stock_actual` y crea el movimiento con el saldo resultante. | `RecuperacionPasswordService::solicitar()` recibe un canal y delega en `estrategia($canal)->iniciar()`; agregar un canal nuevo no modifica el servicio. |
 | **Justificación** | El historial de estados es un requisito (DER, `historial_estados_orden`) y no debe depender de la disciplina de cada controlador. | El README pide Repository «cuando la complejidad lo justifique»: aquí se justifica porque el inventario es la operación más delicada; no se crearon repositorios para tablas simples. | Evita condicionales por canal y permite declarar un canal «no disponible» sin credenciales, sin simular envíos. |
 | **Pruebas** | `PreparacionServiceTest`, `OrdenServiceTest` (historial) | `CierreVentaServiceTest`, `InventarioServiceTest` | `RecuperacionPasswordControllerTest` |
@@ -1662,8 +1662,10 @@ La dirección local habitual es `http://127.0.0.1:8000`. Esta dirección solo es
 ```powershell
 php artisan migrate:fresh --seed   # SOLO en desarrollo: borra y recrea la base con datos ficticios
 composer run dev                   # o: php artisan serve (con npm run build previo)
-php artisan test --compact         # 212 pruebas automatizadas
+php artisan test --compact         # 217 pruebas automatizadas (SQLite en memoria)
 ```
+
+Para correr la misma suite en MySQL se usa la base `cafesync_pruebas` (ver `SEGUIMIENTO.md` §4.2).
 
 Usuarios de demostración creados por `UsuariosSeeder` (contraseña `CafeSync#2026`, o el valor de `SEED_DEMO_PASSWORD` si se define en `.env`):
 
@@ -1674,7 +1676,37 @@ Usuarios de demostración creados por `UsuariosSeeder` (contraseña `CafeSync#20
 | `barista` | Empleado | 2222 |
 | `cocina` | Empleado | 3333 |
 
-Son datos ficticios: no deben cargarse en una base de producción. Al cierre del Sprint 2 el entorno de desarrollo usa SQLite; la migración a MySQL está pendiente de credenciales (`SEGUIMIENTO.md` §8.2).
+Son datos ficticios: no deben cargarse en una base de producción. El entorno de desarrollo usa MySQL (`DB_CONNECTION=mysql`, base `cafesync`).
+
+### 27.8. Correo (Mailtrap) y Twilio Verify
+
+**Correo.** Para pruebas se usa el sandbox SMTP de Mailtrap: los correos quedan en su bandeja y no llegan a buzones reales. Variables en `.env` (los valores se copian desde *Mailtrap → Sandboxes → Credentials*, nunca se versionan):
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS="no-responder@cafesync.test"
+```
+
+Con `MAIL_MAILER=log` el canal de correo solo está disponible en local, porque el código se escribe en el log. El SMTP productivo se configurará después.
+
+**SMS y llamada.** Se usa **Twilio Verify** con el SDK oficial `twilio/sdk` (`composer install` lo instala). Twilio genera el código, lo envía por SMS (`sms`) o llamada (`call`) y lo valida; CaféSync no conoce ni guarda ese código. CaféSync sí conserva la solicitud para limitar a 5 los intentos y aplicar la vigencia de 10 minutos y del token de restablecimiento.
+
+```dotenv
+TWILIO_ACCOUNT_SID=          # AC…
+TWILIO_API_KEY=              # SK… (API Key, no el Auth Token)
+TWILIO_API_SECRET=           # secreto de esa API Key
+TWILIO_VERIFY_SERVICE_SID=   # VA… del servicio Verify existente
+TWILIO_VERIFY_LOCALE=es
+```
+
+Si falta cualquiera de las cuatro primeras, los canales aparecen como «No configurado en este servidor» y no se simula ningún envío. Las pruebas automatizadas sustituyen la conexión HTTP del SDK por `tests/Fakes/ClienteHttpTwilioSimulado.php`: verifican las peticiones (destino, canal, idioma, autenticación con API Key) sin salir a la red ni generar cargos. Clases: `app/Services/Recuperacion/ProveedorTelefonia.php` (adaptador del SDK) y `EstrategiaConTwilioVerify.php`.
+
+> [!WARNING]
+> Las credenciales de Twilio y de Mailtrap viven solo en `.env`, que está en `.gitignore`. Si una credencial se comparte por error, debe revocarse y regenerarse en la consola del proveedor.
 
 ## 28. Seguridad e integridad de datos
 
