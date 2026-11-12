@@ -94,3 +94,14 @@ it('does not offer the revert action to employees', function () {
         ->assertOk()
         ->assertDontSee('Revertir venta');
 });
+
+it('lets an employee cancel an order that is not closed yet, without touching inventory', function () {
+    $this->actingAs($this->cajero)->post(route('ordenes.cancelar', $this->orden), ['motivo' => 'El cliente se retiró'])
+        ->assertSessionHas('estado', "Orden {$this->orden->folio} cancelada.");
+
+    expect($this->orden->fresh())
+        ->estado->toBe(EstadoOrden::Cancelada)
+        ->nota->toContain('Cancelación: El cliente se retiró');
+    expect($this->cafe->fresh()->stock_actual)->toBe('1000.000');
+    expect(MovimientoInventario::count())->toBe(0);
+});
