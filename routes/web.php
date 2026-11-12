@@ -1,14 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\AsignacionTareaController;
 use App\Http\Controllers\Admin\AsistenciaReporteController;
-use App\Http\Controllers\Admin\EstacionController;
-use App\Http\Controllers\Admin\IngredienteController;
-use App\Http\Controllers\Admin\MovimientoInventarioController;
-use App\Http\Controllers\Admin\PlantillaTareaController;
-use App\Http\Controllers\Admin\ProductoController;
-use App\Http\Controllers\Admin\RecetaAdminController;
-use App\Http\Controllers\Admin\ReporteVentasController;
 use App\Http\Controllers\Admin\TokenApiController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\AsistenciaController;
@@ -85,29 +77,36 @@ Route::middleware('auth')->group(function () {
     Route::post('/tareas/{asignacion}/completar', [TareaController::class, 'completar'])->name('tareas.completar');
 
     Route::middleware('rol:gerente')->prefix('admin')->name('admin.')->group(function () {
+        // Sprint 2 — Acceso y POS: roles, reloj checador y tokens de pantallas.
         Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);
-        Route::resource('estaciones', EstacionController::class)->except(['show', 'destroy'])->parameters(['estaciones' => 'estacion']);
-        Route::resource('productos', ProductoController::class)->except(['show', 'destroy']);
-        Route::get('productos/{producto}/receta', [RecetaAdminController::class, 'edit'])->name('recetas.edit');
-        Route::put('productos/{producto}/receta', [RecetaAdminController::class, 'update'])->name('recetas.update');
-
-        Route::resource('ingredientes', IngredienteController::class)->except(['show', 'destroy']);
-        Route::get('inventario', [MovimientoInventarioController::class, 'index'])->name('inventario.index');
-        Route::post('ingredientes/{ingrediente}/movimientos', [MovimientoInventarioController::class, 'store'])->name('inventario.store');
-
-        Route::resource('plantillas-tareas', PlantillaTareaController::class)->except(['show', 'destroy'])->parameters(['plantillas-tareas' => 'plantilla'])->names('plantillas');
-        Route::get('asignaciones', [AsignacionTareaController::class, 'index'])->name('asignaciones.index');
-        Route::get('asignaciones/crear', [AsignacionTareaController::class, 'create'])->name('asignaciones.create');
-        Route::post('asignaciones', [AsignacionTareaController::class, 'store'])->name('asignaciones.store');
-        Route::post('asignaciones/{asignacion}/reabrir', [AsignacionTareaController::class, 'reabrir'])->name('asignaciones.reabrir');
-
         Route::get('asistencias', [AsistenciaReporteController::class, 'index'])->name('asistencias.index');
-
-        Route::get('reportes/ventas', [ReporteVentasController::class, 'index'])->name('reportes.ventas');
-        Route::get('reportes/ventas/exportar', [ReporteVentasController::class, 'exportar'])->name('reportes.ventas.exportar');
-
         Route::get('tokens', [TokenApiController::class, 'index'])->name('tokens.index');
         Route::post('tokens', [TokenApiController::class, 'store'])->name('tokens.store');
         Route::delete('tokens/{token}', [TokenApiController::class, 'destroy'])->name('tokens.destroy');
+
+        /*
+        | Rutas planificadas para sprints posteriores (README §17). Se habilitan cuando exista su controlador,
+        | para que `route:list` / `route:cache` funcionen y el menú no enlace a pantallas inexistentes.
+        |
+        | Sprints 3 y 4 — KDS:
+        |   Route::resource('estaciones', \App\Http\Controllers\Admin\EstacionController::class)->except(['show', 'destroy'])->parameters(['estaciones' => 'estacion']);
+        |
+        | Sprint 5 — Inventario y tareas:
+        |   Route::resource('productos', \App\Http\Controllers\Admin\ProductoController::class)->except(['show', 'destroy']);
+        |   Route::get('productos/{producto}/receta', [\App\Http\Controllers\Admin\RecetaAdminController::class, 'edit'])->name('recetas.edit');
+        |   Route::put('productos/{producto}/receta', [\App\Http\Controllers\Admin\RecetaAdminController::class, 'update'])->name('recetas.update');
+        |   Route::resource('ingredientes', \App\Http\Controllers\Admin\IngredienteController::class)->except(['show', 'destroy']);
+        |   Route::get('inventario', [\App\Http\Controllers\Admin\MovimientoInventarioController::class, 'index'])->name('inventario.index');
+        |   Route::post('ingredientes/{ingrediente}/movimientos', [\App\Http\Controllers\Admin\MovimientoInventarioController::class, 'store'])->name('inventario.store');
+        |   Route::resource('plantillas-tareas', \App\Http\Controllers\Admin\PlantillaTareaController::class)->except(['show', 'destroy'])->parameters(['plantillas-tareas' => 'plantilla'])->names('plantillas');
+        |   Route::get('asignaciones', [\App\Http\Controllers\Admin\AsignacionTareaController::class, 'index'])->name('asignaciones.index');
+        |   Route::get('asignaciones/crear', [\App\Http\Controllers\Admin\AsignacionTareaController::class, 'create'])->name('asignaciones.create');
+        |   Route::post('asignaciones', [\App\Http\Controllers\Admin\AsignacionTareaController::class, 'store'])->name('asignaciones.store');
+        |   Route::post('asignaciones/{asignacion}/reabrir', [\App\Http\Controllers\Admin\AsignacionTareaController::class, 'reabrir'])->name('asignaciones.reabrir');
+        |
+        | Sprint 6 / P2 — Reportes:
+        |   Route::get('reportes/ventas', [\App\Http\Controllers\Admin\ReporteVentasController::class, 'index'])->name('reportes.ventas');
+        |   Route::get('reportes/ventas/exportar', [\App\Http\Controllers\Admin\ReporteVentasController::class, 'exportar'])->name('reportes.ventas.exportar');
+        */
     });
 });
