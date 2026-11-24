@@ -160,12 +160,12 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 | :--- | :--- |
 | 1. Objetivo | README §17: *desarrollar vistas de preparación, filtros por estación, estados de orden y mecanismo de actualización sin recarga manual.* Hito: **la orden llega a la estación correcta y puede marcarse como lista.** |
 | 2. Planificado | T-05 (pantallas KDS por zona) y T-06 (Help Mode). Lo que falta, porque la lógica y las pantallas operativas se adelantaron en el Sprint 2 (§2): (1) administración de estaciones (B-36); (2) medición del tiempo envío → visualización, CP-07 y RNF-01 (B-23); (3) prueba de reconexión, CP-14 (B-28); (4) pendientes trasladados del Sprint 2. |
-| 3. Realizado | 2026-11-23: preparación del flujo de ramas y cierre documental del Sprint 2 (rama `docs/flujo-ramas-y-cierre-sprint-2`). **B-36 administración de estaciones** (rama `feature/kds-administracion-estaciones`). |
-| 4. Funcionalidades | **Estaciones:** el gerente crea, renombra, describe, activa y desactiva zonas de preparación. La lista muestra productos activos y pendientes de cada pantalla KDS. No se puede desactivar una estación con pendientes en órdenes en curso; al desactivarla, sus productos salen del POS y su pantalla de la lista del KDS. Las estaciones no se borran, para conservar el historial de lo vendido. |
-| 5. Archivos | `.github/pull_request_template.md`; `app/Http/Controllers/Admin/EstacionController.php`, `app/Services/Catalogo/EstacionService.php`, `resources/views/admin/estaciones/*`, `routes/web.php`, `resources/js/modulos/formularios.js`; `tests/Feature/Http/Controllers/Admin/EstacionControllerTest.php`, `tests/Feature/Http/Middleware/EnsureRoleTest.php`; `SEGUIMIENTO.md`, `README.md` |
-| 6. Pruebas | `EstacionControllerTest` (9) y 6 casos nuevos en `EnsureRoleTest`. Suite: **232 pasan** en SQLite y en MySQL (§4.7). |
+| 3. Realizado | 2026-11-23: preparación del flujo de ramas y cierre documental del Sprint 2 (rama `docs/flujo-ramas-y-cierre-sprint-2`). **B-36 administración de estaciones** (rama `feature/kds-administracion-estaciones`). **B-23 medición del tiempo del KDS** (rama `test/kds-medicion-tiempo`). |
+| 4. Funcionalidades | **Estaciones:** el gerente crea, renombra, describe, activa y desactiva zonas de preparación. La lista muestra productos activos y pendientes de cada pantalla KDS. No se puede desactivar una estación con pendientes en órdenes en curso; al desactivarla, sus productos salen del POS y su pantalla de la lista del KDS. Las estaciones no se borran, para conservar el historial de lo vendido. **Medición del KDS:** script reproducible que abre la pantalla real en Edge y mide cuánto tarda una orden del POS en aparecer. |
+| 5. Archivos | `.github/pull_request_template.md`; `app/Http/Controllers/Admin/EstacionController.php`, `app/Services/Catalogo/EstacionService.php`, `resources/views/admin/estaciones/*`, `routes/web.php`, `resources/js/modulos/formularios.js`; `tests/Feature/Http/Controllers/Admin/EstacionControllerTest.php`, `tests/Feature/Http/Middleware/EnsureRoleTest.php`; `tests/Rendimiento/medir-kds.mjs`; `SEGUIMIENTO.md`, `README.md` |
+| 6. Pruebas | `EstacionControllerTest` (9) y 6 casos nuevos en `EnsureRoleTest`. Suite: **232 pasan** en SQLite y en MySQL (§4.7). **CP-07:** 2 series (20 y 30 órdenes), 50 de 50 visibles en menos de 1 s; p95 828 ms y 821 ms (§4.5). |
 | 7. Problemas y solución | El filtro que quitó la coautoría también reescribió los dos commits del Sprint 1 que ya estaban en `main`; la rama del Sprint 2 se reacomodó sobre el `main` real con `git rebase --committer-date-is-author-date` y se comprobó que el árbol final es idéntico (§11.3). |
-| 8. Pendientes | B-23 (medición CP-07), B-28 (reconexión CP-14) y los trasladados del Sprint 2. |
+| 8. Pendientes | B-28 (reconexión, CP-14), repetir la medición con dispositivos en red local y los trasladados del Sprint 2. |
 | 9. Evidencia | Merge de `feature/kds-administracion-estaciones` en `main` (§11.2); §4.4 y §4.7. |
 | 10. Conclusión | En curso. |
 
@@ -204,7 +204,7 @@ El documento de la rúbrica 3 no está en el repositorio. Esta lista se construy
 | Integridad de datos | Transacciones, reversión ante fallas, no doble descuento, snapshots de precio | `CierreVentaServiceTest`, `OrdenServiceTest` |
 | Procesos críticos | Ventas, preparación, inventario, asistencia, tareas | `Services/Ventas/*`, `AsistenciaControllerTest`, `TareaControllerTest` |
 | Interfaz y responsividad | Renderizado y visibilidad por rol (automática); capturas a 1920×1080 y 500 px (manual) | Endpoints + §4.7 |
-| Rendimiento KDS | Tiempo envío → visualización < 1 s | **Pendiente** (CP-07, Sprints 3-4) |
+| Rendimiento KDS | Tiempo entre la orden guardada y su aparición en la pantalla de la estación < 1 s | `tests/Rendimiento/medir-kds.mjs` (Edge real; se ejecuta a mano con la aplicación corriendo) |
 
 ### 4.2. Cómo ejecutarlas
 
@@ -225,6 +225,15 @@ DB_CONNECTION=mysql DB_DATABASE=cafesync_pruebas php artisan test --compact   # 
 ```powershell
 $env:DB_CONNECTION='mysql'; $env:DB_DATABASE='cafesync_pruebas'; php artisan test --compact; Remove-Item Env:DB_CONNECTION, Env:DB_DATABASE   # PowerShell
 ```
+
+Medición del tiempo del KDS (requiere la aplicación corriendo con los datos de demostración y Microsoft Edge instalado; crea órdenes de prueba y al final las cancela):
+
+```powershell
+php artisan serve                                                    # en otra terminal
+node tests/Rendimiento/medir-kds.mjs --url=http://127.0.0.1:8000 --ordenes=20
+```
+
+El script termina con código 0 solo si todas las órdenes aparecen y el percentil 95 es menor a 1 s.
 
 Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK oficial arma las peticiones reales, pero nada sale a la red ni genera cargos.
 
@@ -282,7 +291,7 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | CP-04 | PIN inválido | `AsistenciaControllerTest` | Mensaje claro, sin marca | «PIN no válido.», 0 registros; igual con PIN de cuenta inactiva | **Pasa** | 2026-11-11 |
 | CP-05 | Canal de pedido | `OrdenServiceTest`, `PosControllerTest`, `KdsControllerTest` | Cada orden conserva y muestra su canal | Las 3 conservan el canal; etiqueta visible en Órdenes y KDS | **Pasa** | 2026-11-11 |
 | CP-06 | Ruteo a estaciones | `KdsServiceTest`, `KdsControllerTest`, `KdsApiControllerTest` | Cada KDS muestra solo su producto | Barra ve el latte, cocina el sándwich, misma orden | **Pasa** (Sprints 3-4, adelantado) | 2026-11-11 |
-| CP-07 | Actualización KDS con medición | — | < 1 s sin recarga | No medido | **No ejecutado** (Sprints 3-4) | — |
+| CP-07 | Actualización KDS con medición | `tests/Rendimiento/medir-kds.mjs` | < 1 s sin recarga | Serie 1 (20 órdenes): mín. 243, mediana 573, promedio 528, p95 828, máx. 831 ms. Serie 2 (30 órdenes): mín. 218, mediana 550, promedio 543, p95 821, máx. 841 ms. 50/50 bajo 1 s, sin recargar. Entorno: Windows 11, una sola máquina (sin red local de por medio), `php artisan serve` (un proceso), MySQL 8.0.46, Edge 158 en modo headless a 1920×1080, Node 24.19, intervalo de consulta 800 ms | **Pasa** en el entorno descrito; repetir con dispositivos en red local | 2026-11-23 |
 | CP-08 | Help Mode | `AyudaControllerTest` | Ficha del producto correcto | Ingredientes, cantidades y pasos del producto pedido, no de otro | **Pasa** (adelantado) | 2026-11-11 |
 | CP-09 | Cálculo de receta | `CierreVentaServiceTest` | Saldo − receta × unidades | 3 lattes: café 1000 → 946 g, leche 5000 → 4400 ml | **Pasa** (Sprint 5, adelantado) | 2026-11-11 |
 | CP-10 | Doble descuento | `CierreVentaServiceTest`, `OrdenControllerTest` + prueba de concurrencia manual | Sin segundo conjunto de movimientos | 2 cierres → 1 conjunto; falla de stock → 0 movimientos. **6 procesos simultáneos en MySQL** cerrando la misma venta de 2 lattes: café 5000 → 4964 g, leche 20000 → 19600 ml, 2 movimientos, orden cerrada | **Pasa** en SQLite y en MySQL | 2026-11-11 |
@@ -330,6 +339,8 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | 2026-11-11 | `php artisan test --compact` y suite en MySQL (`20e8093`) | **217 pasan, 0 fallan** (650 aserciones) en ambos gestores |
 | 2026-11-23 | Suite antes de integrar el Sprint 2 en `main` | **217 pasan, 0 fallan** |
 | 2026-11-23 | Suite en `feature/kds-administracion-estaciones`, SQLite y MySQL; `npm run build` | **232 pasan, 0 fallan** (689 aserciones) en ambos gestores; compila sin errores |
+| 2026-11-23 | `node tests/Rendimiento/medir-kds.mjs --ordenes=20` | 20/20 bajo 1 s; p95 828 ms; máximo 831 ms; 20 órdenes de prueba canceladas |
+| 2026-11-23 | `node tests/Rendimiento/medir-kds.mjs --ordenes=30` | 30/30 bajo 1 s; p95 821 ms; máximo 841 ms; 30 órdenes de prueba canceladas; código de salida 0 |
 
 ### 4.8. Pruebas manuales pendientes del Sprint 2 (las ejecuta el responsable)
 
@@ -358,7 +369,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | RF-02 | Clasificación por canal | P1 | 2 | **CUMPLIDO** (automático) | CP-05 | M-02 |
 | RF-03 | Captura de venta | P1 | 2 | **CUMPLIDO** (automático) | `PosControllerTest`, `OrdenServiceTest` | M-02 |
 | RF-04 | Enrutamiento por estación | P1 | 3-4 | **CUMPLIDO** (automático) | CP-06; administración de estaciones (`EstacionControllerTest`) | Prueba manual en navegador |
-| RF-05 | Actualización del KDS | P1 | 3-4 | PARCIAL (adelantado) | `KdsControllerTest` | CP-07 |
+| RF-05 | Actualización del KDS | P1 | 3-4 | **CUMPLIDO** | `KdsControllerTest`; CP-07 medido en navegador real | Repetir en red local |
 | RF-06 | Help Mode | P1 | 3-4 | PARCIAL (adelantado) | CP-08 | Prueba en navegador |
 | RF-07 | Configuración de recetas | P1 | 5 | PARCIAL (adelantado) | `RecetaServiceTest` | Pantalla de recetas |
 | RF-08 | Descuento por receta | P1 | 5 | PARCIAL (adelantado) | CP-09, CP-10 (incluida concurrencia en MySQL) | Se cierra en el Sprint 5 con la pantalla de inventario |
@@ -374,7 +385,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 
 | ID | Atributo | Estado | Evidencia / pendiente |
 | :--- | :--- | :--- | :--- |
-| RNF-01 | Actualización < 1 s | PENDIENTE | Polling de 800 ms; **no medido** (Sprints 3-4) |
+| RNF-01 | Actualización < 1 s | **CUMPLIDO** en el entorno de prueba | 50 órdenes medidas con navegador real: p95 ≈ 0.83 s, máximo 0.84 s (CP-07). Pendiente repetir con dispositivos en red local |
 | RNF-02 | Seguridad por rol | **CUMPLIDO** (Sprint 2) | `EnsureRoleTest`: acceso desde la interfaz y por ruta directa |
 | RNF-03 | Usabilidad táctil 1920×1080 | PARCIAL | Controles de 44–64 px; capturas a 1920×1080 y 500 px; falta pantalla táctil real |
 | RNF-04 | Integridad transaccional | **CUMPLIDO** | Reversión ante falla y repetición probadas en SQLite y MySQL; 6 cierres simultáneos en MySQL producen un solo descuento |
@@ -391,7 +402,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | :---: | :--- | :--- |
 | 1 | Acceso con roles y reloj checador | **CUMPLIDO** (automático); M-01, M-03, M-06 pendientes |
 | 2 | Punto de Venta básico | **CUMPLIDO** (automático); M-02 pendiente |
-| 3 | Pantallas KDS por zona | PARCIAL (falta CP-07) |
+| 3 | Pantallas KDS por zona | **CUMPLIDO** (automático + CP-07 medido); falta CP-14 |
 | 4 | Inventario por receta | PARCIAL (faltan pantallas y MySQL) |
 | 5 | Separación de permisos | **CUMPLIDO** para el Sprint 2 |
 | 6 | Datos base de prueba | **CUMPLIDO** (seeders en MySQL) |
@@ -466,6 +477,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | B-35 | Pruebas unitarias de reglas de negocio | 2 | `6412274`; 47 pruebas |
 | B-15 | MySQL local y suite en MySQL | 2 | `74a463f`; 217 pruebas en MySQL; concurrencia CP-10 |
 | B-36 | Administración de estaciones | 3-4 | `EstacionControllerTest` (9), 232 pruebas en SQLite y MySQL |
+| B-23 | Medición del tiempo del KDS en navegador real | 3-4 | `tests/Rendimiento/medir-kds.mjs`; 50/50 bajo 1 s |
 | B-40 | Twilio Verify con SDK oficial | 2 | `ded5191`; 7 pruebas con cliente simulado |
 
 ### En revisión/pruebas (falta verificación manual o un bloqueo externo)
@@ -485,7 +497,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 
 | ID | Tarjeta | Sprint | Falta |
 | :--- | :--- | :---: | :--- |
-| B-06 | KDS por estación, polling y API | 3-4 | Medición CP-07, CP-14, administración de estaciones |
+| B-06 | KDS por estación, polling y API | 3-4 | CP-14 (reconexión) |
 | B-07 | Help Mode | 3-4 | Prueba en navegador |
 | B-08 | Cierre de venta e inventario por receta | 5 | MySQL concurrente, pantallas de ingredientes y movimientos |
 | B-09 | Tareas del empleado | 5 | Plantillas y asignación desde `/admin` |
@@ -496,7 +508,6 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | ID | Tarjeta | Sprint | Depende de |
 | :--- | :--- | :---: | :--- |
 | B-31 | `push`, PR, plantilla de PR y protección de `main` | 2 (bloqueado) | `gh auth login` (§8-6) |
-| B-23 | Medición del KDS en navegador real | 3-4 | Cierre del Sprint 2 |
 | B-28 | Prueba de reconexión del KDS | 3-4 | B-23 |
 | B-37 | Administración de productos y recetas | 5 | Sprints 3-4 |
 | B-38 | Administración de ingredientes y movimientos | 5 | Sprints 3-4 |
@@ -531,6 +542,8 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-23 | Los commits solo muestran la identidad Git del responsable; se quitó del historial la línea `Co-Authored-By` agregada por el asistente | Indicación del responsable | Historial reescrito (§11.3) |
 | 2026-11-23 | Una rama por tarea, creada desde `main`, con los prefijos del README §26.1 e integrada con `--no-ff` | Indicación del responsable; GitHub Flow del README | §11.1 |
 | 2026-11-23 | Cerrar el Sprint 2 con pendientes trasladados e iniciar el Sprint 3-4 | El responsable indicó continuar con el desarrollo | §3.3, §3.4 |
+| 2026-11-23 | Se conserva la consulta periódica de 800 ms y **no se incorpora Reverb** | La medición cumple RNF-01 (README §24.4: evaluar Reverb solo si el polling no alcanza la meta) | README §24.5 |
+| 2026-11-23 | La medición del KDS es un script de Node sin dependencias, en `tests/Rendimiento/`, y no forma parte de la suite Pest | Necesita un navegador real y la aplicación corriendo; no se agregan herramientas de prueba nuevas | §4.2 |
 | 2026-11-23 | Una estación con pendientes en órdenes en curso no puede desactivarse; las estaciones no se borran | Evitar que una preparación quede sin pantalla y conservar el historial (README §22.4) | README §11.4; `EstacionControllerTest` |
 
 ### 8.2. Decisiones pendientes del responsable
@@ -554,7 +567,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | ID | Riesgo | Prob. | Impacto | Prevención | Mitigación | Contingencia | Estado |
 | :--- | :--- | :---: | :---: | :--- | :--- | :--- | :--- |
 | R-01 | Falla de red en hora pico | Media | Alto | Probar reconexión | Indicador y reintentos en el KDS | Comunicar la incidencia; ticket solo con impresora | Mitigado en código; falta CP-14 |
-| R-02 | Órdenes no llegan al KDS a tiempo | Media | Alto | Polling de 800 ms con huella | Medir (B-23) | Reducir intervalo o usar Reverb | Abierto, sin medición |
+| R-02 | Órdenes no llegan al KDS a tiempo | Media | Alto | Polling de 800 ms con huella | Medición con navegador real (CP-07): p95 ≈ 0.83 s | Reducir el intervalo o usar Reverb si la red local lo empeora | **Mitigado** en el entorno de prueba; repetir en red local |
 | R-03 | Recetas o unidades incompatibles | Media | Alto | Unidad base por ingrediente | Validación en recetas y ajustes | Nueva versión y ajuste | Mitigado y probado |
 | R-04 | Doble descuento | Media | Alto | Cierre transaccional e idempotente | Bloqueo, verificación e índice único | Revisar historial | Probado en SQLite; falta MySQL |
 | R-05 | Empleado accede a funciones de gerente | Baja/Media | Alto | `rol:gerente` y verificaciones en servicios | `EnsureRoleTest` | Revocar sesión y corregir | **Mitigado y probado** para el Sprint 2 |
@@ -582,6 +595,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-11 | Incremento 4 del Sprint 2 con datos del responsable: MySQL 8.0.46 (bases `cafesync` y `cafesync_pruebas`), Mailtrap y Twilio Verify con SDK oficial; confirmación de D-09. La suite en MySQL detectó D-17 (crítico) y se corrigió. Concurrencia del cierre de venta verificada con 6 procesos. Se comprobó que ningún secreto está en el historial de Git. | 217/217 pruebas pasan en SQLite y MySQL; RB-19, RNF-04 cumplidos; RB-07 en sandbox; D-05, D-09, D-17 resueltos; D-18 registrado. | Regenerar la API Key de Twilio; ejecutar M-01 a M-08; decidir D-18; cerrar el Sprint 2 |
 | 2026-11-23 | A petición del responsable: se quitó la coautoría del asistente en los 21 commits del Sprint 2 (historial reescrito localmente, código idéntico) y se adoptó una rama por tarea. Merge local del Sprint 2 en `main` (`cf23603`). Rama `docs/flujo-ramas-y-cierre-sprint-2`: plantilla de PR, §11 de control de versiones, cierre del Sprint 2 y apertura del Sprint 3-4. | 217/217 pruebas pasan antes del merge. El `push --force` de la rama reescrita lo bloqueó el sistema de permisos del asistente: queda para el responsable (§11.4). | Sprint 3-4: administración de estaciones (rama `feature/kds-administracion-estaciones`) |
 | 2026-11-23 | Sprint 3-4, rama `feature/kds-administracion-estaciones`: administración de estaciones (B-36) con la regla de no desactivar una estación con pendientes; listado con un solo conteo agregado, sin N+1; se habilitó su ruta comentada; 15 pruebas nuevas. | 232/232 pruebas pasan en SQLite y MySQL; RF-04 cumplido con pruebas automáticas. | Medición del tiempo del KDS (B-23, rama `test/kds-medicion-tiempo`) |
+| 2026-11-23 | Sprint 3-4, rama `test/kds-medicion-tiempo`: script `tests/Rendimiento/medir-kds.mjs` (Edge real, protocolo DevTools, sin dependencias). Dos series: 20 y 30 órdenes. | 50/50 bajo 1 s; p95 828 y 821 ms. CP-07 pasa; RNF-01 y RF-05 cumplidos en el entorno de prueba; se descarta Reverb. | Reconexión del KDS (B-28, CP-14) |
 
 ---
 
@@ -604,7 +618,8 @@ Se sigue el GitHub Flow del README §26:
 | `feature/base-datos-modelos` | feature | Sprint 1: esquema, modelos y datos base | Integrada en `main` (`fcaf430`) |
 | `feature/autenticacion-seguridad` | feature | Sprint 2 completo: acceso, seguridad, POS, interfaz, pruebas, MySQL, Mailtrap, Twilio Verify. **Concentró trabajo de varios temas en una sola rama**; desde el 2026-11-23 cada tema va en su propia rama | Integrada en `main` (`cf23603`) |
 | `docs/flujo-ramas-y-cierre-sprint-2` | docs | Plantilla de PR, esta sección, cierre del Sprint 2 | Integrada en `main` (`24825c4`) |
-| `feature/kds-administracion-estaciones` | feature | Sprint 3-4, B-36: administración de estaciones | Integrada en `main` |
+| `feature/kds-administracion-estaciones` | feature | Sprint 3-4, B-36: administración de estaciones | Integrada en `main` (`b0eee18`) |
+| `test/kds-medicion-tiempo` | test | Sprint 3-4, B-23: medición del tiempo del KDS (CP-07) | Integrada en `main` |
 
 ### 11.3. Reescritura del historial (2026-11-23)
 
