@@ -1,5 +1,16 @@
 <?php
 
+use App\Enums\CanalOrigen;
+use App\Enums\EstadoOrden;
+use App\Models\DetalleReceta;
+use App\Models\Estacion;
+use App\Models\Ingrediente;
+use App\Models\Orden;
+use App\Models\Producto;
+use App\Models\Receta;
+use App\Models\Usuario;
+use App\Services\Ventas\OrdenService;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 /*
@@ -14,36 +25,57 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(LazilyRefreshDatabase::class)
     ->in('Feature');
-
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
 
 /*
 |--------------------------------------------------------------------------
 | Functions
 |--------------------------------------------------------------------------
 |
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
+| Ayudantes para construir el catálogo mínimo de una venta de prueba.
 |
 */
 
-function something()
+/**
+ * Producto vendible con una receta activa.
+ *
+ * @param  array<int, array{0: Ingrediente, 1: string}>  $componentes  Pares [ingrediente, cantidad en su unidad base].
+ */
+function productoConReceta(array $componentes, string $precio = '50.00', ?Estacion $estacion = null): Producto
 {
-    // ..
+    $producto = Producto::factory()->create([
+        'precio' => $precio,
+        'id_estacion' => ($estacion ?? Estacion::factory()->create())->id_estacion,
+    ]);
+
+    $receta = Receta::factory()->create(['id_producto' => $producto->id_producto]);
+
+    foreach ($componentes as [$ingrediente, $cantidad]) {
+        DetalleReceta::factory()->create([
+            'id_receta' => $receta->id_receta,
+            'id_ingrediente' => $ingrediente->id_ingrediente,
+            'cantidad' => $cantidad,
+        ]);
+    }
+
+    return $producto;
+}
+
+/**
+ * Crea una orden por el flujo real del POS y la deja lista para cerrarse.
+ *
+ * @param  array<int, array{0: Producto, 1: int}>  $lineas  Pares [producto, cantidad].
+ */
+function ordenLista(array $lineas, ?Usuario $cajero = null): Orden
+{
+    $orden = app(OrdenService::class)->crear(
+        $cajero ?? Usuario::factory()->create(),
+        CanalOrigen::Mostrador,
+        array_map(fn (array $linea) => ['id_producto' => $linea[0]->id_producto, 'cantidad' => $linea[1]], $lineas),
+    );
+
+    $orden->forceFill(['estado' => EstadoOrden::Lista])->save();
+
+    return $orden;
 }

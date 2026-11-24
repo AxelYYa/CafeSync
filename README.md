@@ -16,6 +16,9 @@
 > [!NOTE]
 > **Estado del documento:** especificación y planificación técnica. Las funciones, diagramas y tablas descritos aquí representan el diseño previsto; no deben considerarse implementados o probados hasta que exista evidencia del desarrollo.
 
+> [!TIP]
+> **Estado de implementación (11 de noviembre de 2026):** el proyecto está en el **Sprint 2 — Acceso y POS**, en revisión de cierre. El hito del sprint (*una orden puede crearse con sus productos y canal y queda almacenada*) y los requisitos de acceso de la rúbrica están implementados y cubiertos por **217 pruebas automatizadas que pasan en SQLite y en MySQL**. El correo se prueba con el sandbox SMTP de Mailtrap; el SMS y la llamada (Twilio Verify) esperan la regeneración de su API Key, y la publicación en GitHub espera acceso con `gh`. El avance real, los casos de prueba, los defectos, los riesgos y los pendientes se registran en [`SEGUIMIENTO.md`](SEGUIMIENTO.md). Las secciones agregadas en este cierre son §11.4, §13.6, §19.4, §23.16, §27.7, §27.8 y §28.4.
+
 | Ficha del proyecto | Información |
 | :--- | :--- |
 | **Institución** | Universidad Tecnológica de Torreón |
@@ -24,7 +27,7 @@
 | **Estudiante** | Axel Espinoza Blanco (desarrollo individual) |
 | **Profesor** | Jesús Del Toro Robledo |
 | **Sistema** | CaféSync — gestión operativa de cafetería |
-| **Última actualización del README** | 19 de octubre de 2026 |
+| **Última actualización del README** | 11 de noviembre de 2026 (cierre del Sprint 2) |
 
 ---
 
@@ -491,6 +494,21 @@ Las reglas de negocio convierten los objetivos generales en decisiones concretas
 > Punto por confirmar antes de implementar<br>Definir de forma explícita qué ocurre cuando una orden se cancela, se modifica después de enviarse a cocina o se cierra más de una vez. También debe decidirse cómo se reporta una falta de ingredientes y si se permitirá cerrar una venta cuando una receta no esté configurada. Estas decisiones afectan directamente la integridad del inventario.
 
 
+### 11.4. Decisiones tomadas durante la implementación
+
+Los puntos por confirmar se resolvieron así en el código (registro en `SEGUIMIENTO.md` §8.1):
+
+| Situación | Regla implementada | Dónde |
+| :--- | :--- | :--- |
+| Producto sin receta configurada | No se puede agregar a una orden ni cerrar una venta que lo contenga. | `OrdenService`, `CierreVentaService` |
+| Ingredientes insuficientes | Se rechaza la orden al crearla y se vuelve a validar al cerrar; nunca se permite un saldo negativo. Si falla al cerrar, no se guarda ningún movimiento. | `RequerimientosService`, `InventarioRepository` |
+| Momento del descuento | Solo al cerrar la venta, desde los estados «lista» o «entregada». Crear la orden no descuenta. | `CierreVentaService` |
+| Cerrar dos veces | La segunda solicitud no hace nada (idempotente) y se informa que ya estaba cerrada. | `CierreVentaService`, índice único `movimientos_consumo_unico` |
+| Cancelar antes de cerrar | Cualquier usuario autenticado, incluido el empleado, puede cancelar una orden en curso; no afecta el inventario. Confirmado por el responsable el 11-nov-2026. | `OrdenService::cancelar` |
+| Cancelar una venta cerrada | Solo el gerente, mediante una reversión con motivo que devuelve los ingredientes con movimientos de tipo `reversion`. | `CierreVentaService::revertir` |
+| Estados de preparación | Solo avanzan un paso: pendiente → en preparación → lista. Cuando todos los renglones están listos, la orden pasa a «lista». | `EstadoPreparacion`, `DetalleOrdenObserver` |
+| Asistencia | Debe alternar entrada y salida; un PIN inválido o de una cuenta inactiva no genera registro. | `AsistenciaService` |
+
 ## 12. Modelo conceptual de datos
 
 
@@ -601,6 +619,20 @@ La aplicación se organizará como un proyecto **Laravel** integrado, con rutas,
 
 - Los respaldos y la recuperación de datos son consideraciones necesarias antes de una instalación operativa, aunque su automatización queda fuera del MVP si el tiempo no lo permite.
 
+
+### 13.6. Patrones de diseño implementados
+
+MVC es la arquitectura general. **Middleware** y **transacciones** se usan como mecanismos de Laravel, no se presentan como patrones de diseño. Los patrones implementados son tres:
+
+| | Observer | Repository | Strategy |
+| :--- | :--- | :--- | :--- |
+| **Propósito** | Reaccionar a cambios de una entidad sin que quien la modifica tenga que saberlo. | Concentrar la persistencia de existencias y movimientos en un solo lugar. | Elegir en tiempo de ejecución cómo se verifica la identidad al recuperar la contraseña. |
+| **Problema que resuelve** | Cada cambio de estado de una orden debe quedar en el historial, y la orden debe pasar a «lista» cuando todas sus estaciones terminan. Sin el patrón, cada servicio tendría que recordarlo. | El saldo de un ingrediente debe cambiar siempre junto con su movimiento y nunca quedar negativo, venga el cambio de una venta, de una reversión o de un ajuste. | Hay cuatro canales (correo, pregunta, SMS, llamada) con pasos distintos, pero el flujo (solicitar → verificar → restablecer) y sus protecciones son los mismos. |
+| **Ubicación** | `app/Observers/` | `app/Repositories/` | `app/Services/Recuperacion/` |
+| **Clases** | `OrdenObserver`, `DetalleOrdenObserver`, registrados en `AppServiceProvider` | `InventarioRepository`, usado por `CierreVentaService` e `InventarioService` | `EstrategiaRecuperacion` (interfaz); `EstrategiaConCodigo` → `RecuperacionPorCorreo`; `EstrategiaConTwilioVerify` → `RecuperacionPorSms`, `RecuperacionPorLlamada`; `RecuperacionPorPregunta`; contexto `RecuperacionPasswordService` |
+| **Ejemplo** | `PreparacionService` solo cambia el estado de un renglón; `DetalleOrdenObserver` detecta que ya no quedan pendientes y marca la orden; `OrdenObserver` guarda el historial. | `CierreVentaService` llama a `registrarMovimiento()`, que actualiza `stock_actual` y crea el movimiento con el saldo resultante. | `RecuperacionPasswordService::solicitar()` recibe un canal y delega en `estrategia($canal)->iniciar()`; agregar un canal nuevo no modifica el servicio. |
+| **Justificación** | El historial de estados es un requisito (DER, `historial_estados_orden`) y no debe depender de la disciplina de cada controlador. | El README pide Repository «cuando la complejidad lo justifique»: aquí se justifica porque el inventario es la operación más delicada; no se crearon repositorios para tablas simples. | Evita condicionales por canal y permite declarar un canal «no disponible» sin credenciales, sin simular envíos. |
+| **Pruebas** | `PreparacionServiceTest`, `OrdenServiceTest` (historial) | `CierreVentaServiceTest`, `InventarioServiceTest` | `RecuperacionPasswordControllerTest` |
 
 ## 14. Análisis de riesgos
 
@@ -821,6 +853,10 @@ El plan de pruebas permitirá verificar que el prototipo no solo muestre pantall
 
 La demostración del MVP se considerará satisfactoria cuando los casos críticos P1 hayan sido ejecutados y no exista un defecto conocido que permita acceso administrativo no autorizado, genere consumos duplicados o impida completar el flujo de pedido a preparación. Si alguna prueba no puede realizarse por falta de hardware o de una condición técnica, debe declararse como pendiente, no marcarse como aprobada.
 
+
+### 19.4. Resultados de la ejecución
+
+Los resultados reales de CP-01 a CP-15, los archivos de prueba, los comandos y la relación con la rúbrica se registran en [`SEGUIMIENTO.md`](SEGUIMIENTO.md) §4. Al cierre del Sprint 2 hay 212 pruebas automatizadas (47 unitarias y 165 de integración) que pasan. CP-07, CP-14 y CP-15 todavía no se ejecutan porque corresponden a sprints posteriores.
 
 ## 20. Entregables y criterios de éxito
 
@@ -1292,6 +1328,22 @@ Registra quién cambió el estado de la orden y cuándo ocurrió.
 
 ---
 
+### 23.16. Ampliaciones implementadas respecto al diccionario
+
+Estas columnas y tablas no estaban en la propuesta inicial y se agregaron para cumplir los requisitos de acceso de la rúbrica o para mejorar la trazabilidad:
+
+| Tabla | Campo / tabla nueva | Tipo | Motivo |
+| :--- | :--- | :--- | :--- |
+| `usuarios` | `username` | VARCHAR(40), UK | Inicio de sesión por nombre de usuario además del correo. |
+| `usuarios` | `telefono` | VARCHAR(20), NULL | Recuperación por SMS o llamada (formato internacional). |
+| `usuarios` | `pin_lookup` | VARCHAR(64), UK, NULL | Índice HMAC-SHA256 del PIN para identificar al empleado sin recorrer todos los hashes; garantiza que el PIN sea único. El PIN se sigue guardando con bcrypt en `pin_hash`. |
+| `usuarios` | `pregunta_secreta`, `respuesta_secreta_hash` | VARCHAR(160) / VARCHAR(255) | Recuperación por pregunta secreta; la respuesta se guarda solo como hash. |
+| `usuarios` | `mfa_secret`, `mfa_recovery_codes`, `mfa_confirmado_en` | TEXT cifrado / TEXT cifrado / TIMESTAMP | Verificación en dos pasos (TOTP) y códigos de recuperación de un solo uso (guardados como huella SHA-256). |
+| `movimientos_inventario` | `incrementa`, `stock_resultante` | BOOLEAN / DECIMAL(12,3) | Indica si el movimiento suma o resta y conserva el saldo después de aplicarlo, para auditar sin recalcular. |
+| `recuperaciones_password` | tabla nueva | — | Solicitudes de recuperación: canal, código con hash, token con hash, intentos, vencimiento y uso. |
+| `sessions` | tabla de Laravel | — | Sesiones web en base de datos para listar y cerrar sesiones de otros dispositivos. |
+| `personal_access_tokens` | tabla de Sanctum | — | Tokens de API de las pantallas KDS, con permisos y vencimiento. |
+
 ## 24. Diagramas complementarios
 
 ### 24.1. Arquitectura del sistema
@@ -1605,6 +1657,57 @@ La dirección local habitual es `http://127.0.0.1:8000`. Esta dirección solo es
 
 ---
 
+### 27.7. Datos de demostración y pruebas
+
+```powershell
+php artisan migrate:fresh --seed   # SOLO en desarrollo: borra y recrea la base con datos ficticios
+composer run dev                   # o: php artisan serve (con npm run build previo)
+php artisan test --compact         # 217 pruebas automatizadas (SQLite en memoria)
+```
+
+Para correr la misma suite en MySQL se usa la base `cafesync_pruebas` (ver `SEGUIMIENTO.md` §4.2).
+
+Usuarios de demostración creados por `UsuariosSeeder` (contraseña `CafeSync#2026`, o el valor de `SEED_DEMO_PASSWORD` si se define en `.env`):
+
+| Usuario | Rol | PIN del reloj |
+| :--- | :--- | :--- |
+| `gerente` | Gerente | 9999 |
+| `cajero` | Empleado | 1111 |
+| `barista` | Empleado | 2222 |
+| `cocina` | Empleado | 3333 |
+
+Son datos ficticios: no deben cargarse en una base de producción. El entorno de desarrollo usa MySQL (`DB_CONNECTION=mysql`, base `cafesync`).
+
+### 27.8. Correo (Mailtrap) y Twilio Verify
+
+**Correo.** Para pruebas se usa el sandbox SMTP de Mailtrap: los correos quedan en su bandeja y no llegan a buzones reales. Variables en `.env` (los valores se copian desde *Mailtrap → Sandboxes → Credentials*, nunca se versionan):
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS="no-responder@cafesync.test"
+```
+
+Con `MAIL_MAILER=log` el canal de correo solo está disponible en local, porque el código se escribe en el log. El SMTP productivo se configurará después.
+
+**SMS y llamada.** Se usa **Twilio Verify** con el SDK oficial `twilio/sdk` (`composer install` lo instala). Twilio genera el código, lo envía por SMS (`sms`) o llamada (`call`) y lo valida; CaféSync no conoce ni guarda ese código. CaféSync sí conserva la solicitud para limitar a 5 los intentos y aplicar la vigencia de 10 minutos y del token de restablecimiento.
+
+```dotenv
+TWILIO_ACCOUNT_SID=          # AC…
+TWILIO_API_KEY=              # SK… (API Key, no el Auth Token)
+TWILIO_API_SECRET=           # secreto de esa API Key
+TWILIO_VERIFY_SERVICE_SID=   # VA… del servicio Verify existente
+TWILIO_VERIFY_LOCALE=es
+```
+
+Si falta cualquiera de las cuatro primeras, los canales aparecen como «No configurado en este servidor» y no se simula ningún envío. Las pruebas automatizadas sustituyen la conexión HTTP del SDK por `tests/Fakes/ClienteHttpTwilioSimulado.php`: verifican las peticiones (destino, canal, idioma, autenticación con API Key) sin salir a la red ni generar cargos. Clases: `app/Services/Recuperacion/ProveedorTelefonia.php` (adaptador del SDK) y `EstrategiaConTwilioVerify.php`.
+
+> [!WARNING]
+> Las credenciales de Twilio y de Mailtrap viven solo en `.env`, que está en `.gitignore`. Si una credencial se comparte por error, debe revocarse y regenerarse en la consola del proveedor.
+
 ## 28. Seguridad e integridad de datos
 
 ### 28.1. Acceso por rol
@@ -1639,6 +1742,16 @@ Para impedir duplicados, la aplicación comprobará si la orden ya fue cerrada y
 - Los datos usados en pruebas deben ser ficticios. No se incluirán listas reales de empleados ni información privada de la cafetería en el repositorio.
 
 ---
+
+### 28.4. Autenticación: sesión web, MFA y tokens
+
+| Mecanismo | Para qué se usa | Cómo se protege |
+| :--- | :--- | :--- |
+| **Sesión web** (cookie de Laravel, tabla `sessions`) | Personas que usan el sistema desde el navegador: POS, KDS, reloj, administración. | Contraseña con hash; bloqueo tras 5 intentos fallidos; `session()->regenerate()` al entrar; `invalidate()` y nuevo token CSRF al salir; cookie `HttpOnly`; cada sesión puede cerrarse desde otro dispositivo y deja de funcionar en la siguiente petición. |
+| **MFA (TOTP)** | Segundo paso opcional del inicio de sesión web. | La sesión no se abre hasta validar el código de 6 dígitos (RFC 6238) o un código de recuperación de un solo uso; el secreto se guarda cifrado; un código no puede reutilizarse. |
+| **Token de API** (Laravel Sanctum) | Dispositivos sin una persona que inicie sesión, por ejemplo una pantalla KDS que consulta `/api/v1/kds`. | Lo emite el gerente en «Tokens de pantallas»; solo se guarda su huella; tiene permisos limitados (`kds:read`, `kds:update`), vence (30 días por defecto, `SANCTUM_EXPIRATION`) y puede revocarse. No abre el panel ni las pantallas web. |
+
+Relación entre ellos: el token pertenece a una cuenta de usuario. Si esa cuenta se desactiva, sus tokens se revocan y sus sesiones se cierran, y el middleware `EnsureUserIsActive` rechaza cualquier petición pendiente. Cambiar la contraseña, propia o por el gerente, también cierra las demás sesiones.
 
 ## 29. Referencias técnicas
 
