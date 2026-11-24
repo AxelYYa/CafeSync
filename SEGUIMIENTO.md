@@ -160,12 +160,12 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 | :--- | :--- |
 | 1. Objetivo | README §17: *desarrollar vistas de preparación, filtros por estación, estados de orden y mecanismo de actualización sin recarga manual.* Hito: **la orden llega a la estación correcta y puede marcarse como lista.** |
 | 2. Planificado | T-05 (pantallas KDS por zona) y T-06 (Help Mode). Lo que falta, porque la lógica y las pantallas operativas se adelantaron en el Sprint 2 (§2): (1) administración de estaciones (B-36); (2) medición del tiempo envío → visualización, CP-07 y RNF-01 (B-23); (3) prueba de reconexión, CP-14 (B-28); (4) pendientes trasladados del Sprint 2. |
-| 3. Realizado | 2026-11-23: preparación del flujo de ramas y cierre documental del Sprint 2 (rama `docs/flujo-ramas-y-cierre-sprint-2`). **B-36 administración de estaciones** (rama `feature/kds-administracion-estaciones`). **B-23 medición del tiempo del KDS** (rama `test/kds-medicion-tiempo`). **B-28 prueba de falla de red** (rama `test/kds-reconexion`). |
+| 3. Realizado | 2026-11-23: preparación del flujo de ramas y cierre documental del Sprint 2 (rama `docs/flujo-ramas-y-cierre-sprint-2`). **B-36 administración de estaciones** (rama `feature/kds-administracion-estaciones`). **B-23 medición del tiempo del KDS** (rama `test/kds-medicion-tiempo`). **B-28 prueba de falla de red** (rama `test/kds-reconexion`). **D-19 recuperación inmediata al volver la red** (rama `fix/kds-recuperacion-inmediata`). |
 | 4. Funcionalidades | **Estaciones:** el gerente crea, renombra, describe, activa y desactiva zonas de preparación. La lista muestra productos activos y pendientes de cada pantalla KDS. No se puede desactivar una estación con pendientes en órdenes en curso; al desactivarla, sus productos salen del POS y su pantalla de la lista del KDS. Las estaciones no se borran, para conservar el historial de lo vendido. **Medición del KDS:** script reproducible que abre la pantalla real en Edge y mide cuánto tarda una orden del POS en aparecer. |
 | 5. Archivos | `.github/pull_request_template.md`; `app/Http/Controllers/Admin/EstacionController.php`, `app/Services/Catalogo/EstacionService.php`, `resources/views/admin/estaciones/*`, `routes/web.php`, `resources/js/modulos/formularios.js`; `tests/Feature/Http/Controllers/Admin/EstacionControllerTest.php`, `tests/Feature/Http/Middleware/EnsureRoleTest.php`; `tests/Rendimiento/escenario-kds.mjs`, `tests/Rendimiento/medir-kds.mjs`, `tests/Rendimiento/probar-reconexion-kds.mjs`; `SEGUIMIENTO.md`, `README.md` |
-| 6. Pruebas | `EstacionControllerTest` (9) y 6 casos nuevos en `EnsureRoleTest`. Suite: **232 pasan** en SQLite y en MySQL (§4.7). **CP-07:** 2 series (20 y 30 órdenes), 50 de 50 visibles en menos de 1 s; p95 828 ms y 821 ms (§4.5). **CP-14:** 6 de 6 verificaciones pasan; la recuperación tras 6 s sin red tardó 4.6 s por la espera creciente entre reintentos (D-19). |
+| 6. Pruebas | `EstacionControllerTest` (9) y 6 casos nuevos en `EnsureRoleTest`. Suite: **232 pasan** en SQLite y en MySQL (§4.7). **CP-07:** 2 series (20 y 30 órdenes), 50 de 50 visibles en menos de 1 s; p95 828 ms y 821 ms (§4.5). **CP-14:** 6 de 6 verificaciones pasan; la recuperación tras 6 s sin red tardó 4.6 s por la espera creciente entre reintentos (D-19); tras la corrección, 267–290 ms. |
 | 7. Problemas y solución | El filtro que quitó la coautoría también reescribió los dos commits del Sprint 1 que ya estaban en `main`; la rama del Sprint 2 se reacomodó sobre el `main` real con `git rebase --committer-date-is-author-date` y se comprobó que el árbol final es idéntico (§11.3). |
-| 8. Pendientes | D-19 (recuperación inmediata al volver la red), repetir la medición con dispositivos en red local y los trasladados del Sprint 2. |
+| 8. Pendientes | D-20, repetir la medición con dispositivos en red local y los trasladados del Sprint 2. |
 | 9. Evidencia | Merge de `feature/kds-administracion-estaciones` en `main` (§11.2); §4.4 y §4.7. |
 | 10. Conclusión | En curso. |
 
@@ -307,7 +307,7 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | CP-11 | Movimiento manual autorizado | `InventarioServiceTest` | Gerente opera; empleado denegado | Servicio correcto; sin ruta HTTP todavía | **Parcial** (Sprint 5) | 2026-11-11 |
 | CP-12 | Checklist | `TareaControllerTest` | La asignación y su estado persisten | Marcar y persistir correcto; la asignación desde `/admin` es del Sprint 5 | **Parcial** (Sprint 5) | 2026-11-11 |
 | CP-13 | Validación de datos | `PosControllerTest`, `UsuarioControllerTest`, `RecetaServiceTest`, `AsistenciaControllerTest`, `SeguridadControllerTest` | No guarda y explica | Negativos, ceros, vacíos y formatos inválidos rechazados; mensajes en español | **Pasa** | 2026-11-11 |
-| CP-14 | Falla de red | `tests/Rendimiento/probar-reconexion-kds.mjs` | Indica la incidencia y no duplica | Aviso «Sin conexión» 806 ms después del corte; la orden creada durante 6 s sin red no aparece; al reconectar vuelve a «Conectado» sin recargar y la orden llega una sola vez (contador 0 → 1). Recuperación: 4565 ms tras volver la red | **Pasa** (6/6). Hallazgo: la recuperación puede tardar hasta ~6 s (D-19) | 2026-11-23 |
+| CP-14 | Falla de red | `tests/Rendimiento/probar-reconexion-kds.mjs` | Indica la incidencia y no duplica | Aviso «Sin conexión» 806 ms después del corte; la orden creada durante 6 s sin red no aparece; al reconectar vuelve a «Conectado» sin recargar y la orden llega una sola vez (contador 0 → 1). Recuperación: 4565 ms tras volver la red; **tras corregir D-19: 288, 267 y 286 ms** | **Pasa** (6/6 en las 4 ejecuciones) | 2026-11-23 |
 | CP-15 | Consulta de ventas | — | Total coincide | Servicio existe; sin pantalla | **No ejecutado** (Sprint 6, P2) | — |
 
 ### 4.6. Relación rúbrica ↔ casos CP ↔ pruebas
@@ -352,6 +352,8 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | 2026-11-23 | `node tests/Rendimiento/medir-kds.mjs --ordenes=30` | 30/30 bajo 1 s; p95 821 ms; máximo 841 ms; 30 órdenes de prueba canceladas; código de salida 0 |
 | 2026-11-23 | `node tests/Rendimiento/probar-reconexion-kds.mjs --desconexion=6000` | 6/6 verificaciones pasan; recuperación 4565 ms después de volver la red; orden de prueba cancelada |
 | 2026-11-23 | `node tests/Rendimiento/medir-kds.mjs --ordenes=5` (tras mover el código común a `escenario-kds.mjs`) | 5/5 bajo 1 s; p95 807 ms |
+| 2026-11-23 | `probar-reconexion-kds.mjs` ×3 con la corrección de D-19 | 6/6 en cada ejecución; recuperación 288, 267 y 286 ms |
+| 2026-11-23 | `medir-kds.mjs --ordenes=10` con la corrección de D-19; `php artisan test --filter=Kds` | Mediana 528 ms, p95 841 ms; 20 pruebas PHP del KDS pasan. El script terminó con error al borrar el perfil temporal de Edge (`EPERM`) después de medir y cancelar: D-20 |
 
 ### 4.8. Pruebas manuales pendientes del Sprint 2 (las ejecuta el responsable)
 
@@ -390,7 +392,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | RF-12 | Protección de reportes y administración | P1 | 2 | **CUMPLIDO** para las rutas del Sprint 2 | `EnsureRoleTest` | Repetir al habilitar cada ruta nueva |
 | RF-13 | Reporte de ventas | P2 | 6 | PARCIAL | `ReporteVentasService` | Pantalla, CP-15 |
 | RF-14 | Aviso de bajo inventario | P2 | 5 | PARCIAL | `DashboardControllerTest` | — |
-| RF-15 | Reconexión / contingencia | P2 | 3-4 | PARCIAL | CP-14 pasa: aviso, recuperación sin recargar y sin duplicados | D-19; impresión de tickets: no hay hardware compatible |
+| RF-15 | Reconexión / contingencia | P2 | 3-4 | PARCIAL | CP-14 pasa: aviso, recuperación en ~0.3 s sin recargar y sin duplicados | Impresión de tickets de contingencia: no hay hardware compatible (README §6) |
 
 ### 5.2. Requisitos no funcionales
 
@@ -466,7 +468,8 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | D-15 | Alto | Menú del gerente enlazaba pantallas con error 500 | **Corregido** (`43aa784`): el menú solo muestra rutas registradas |
 | D-16 | Bajo | Un error de `password_actual` se repetía en todos los formularios | **Corregido** (`5b55a44`): *error bags*; prueba *shows a form error only in the form that caused it* |
 | D-17 | Crítico | En MySQL ninguna orden se guardaba: el folio temporal `TMP-<uuid>` (40 caracteres) excedía `ordenes.folio` VARCHAR(30). SQLite no valida la longitud | **Corregido** (`74a463f`): folio temporal `TMP<ULID>` de 29 caracteres; detectado al correr la suite en MySQL |
-| D-19 | Bajo | Al volver la red, el KDS tarda hasta ~6 s en recuperarse porque espera el siguiente reintento (la espera crece de 1.6 s a 10 s) | Abierto — detectado por CP-14; propuesta: consultar de inmediato al recibir el evento `online` del navegador |
+| D-19 | Bajo | Al volver la red, el KDS tardaba hasta ~6 s en recuperarse porque esperaba el siguiente reintento (la espera crece de 1.6 s a 10 s) | **Corregido** (rama `fix/kds-recuperacion-inmediata`): la pantalla escucha `offline`/`online` y consulta de inmediato al volver la red; recuperación medida 267–290 ms en 3 ejecuciones de CP-14 (antes 4565 ms) |
+| D-20 | Bajo | Los scripts de `tests/Rendimiento` terminan con error si Windows aún bloquea la carpeta temporal de Edge al borrarla, aunque la prueba haya pasado | Abierto (rama `fix/scripts-kds-limpieza-perfil`) |
 | D-18 | Medio | `composer audit` reporta 8 avisos de seguridad en 5 paquetes Symfony que trae Laravel (`http-foundation`, `http-kernel`, `mime`, `routing`, `yaml`); ninguno en `twilio/sdk` | Abierto — actualizar dependencias requiere aprobación (§8.2-9) |
 
 ---
@@ -510,7 +513,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 
 | ID | Tarjeta | Sprint | Falta |
 | :--- | :--- | :---: | :--- |
-| B-06 | KDS por estación, polling y API | 3-4 | D-19 (recuperación inmediata) |
+| B-06 | KDS por estación, polling y API | 3-4 | Repetir CP-07 con dispositivos en red local |
 | B-07 | Help Mode | 3-4 | Prueba en navegador |
 | B-08 | Cierre de venta e inventario por receta | 5 | MySQL concurrente, pantallas de ingredientes y movimientos |
 | B-09 | Tareas del empleado | 5 | Plantillas y asignación desde `/admin` |
@@ -578,7 +581,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 
 | ID | Riesgo | Prob. | Impacto | Prevención | Mitigación | Contingencia | Estado |
 | :--- | :--- | :---: | :---: | :--- | :--- | :--- | :--- |
-| R-01 | Falla de red en hora pico | Media | Alto | Probar reconexión | Indicador y reintentos en el KDS (CP-14 pasa) | Comunicar la incidencia; ticket solo con impresora | **Mitigado y probado**; mejorar el tiempo de recuperación (D-19) |
+| R-01 | Falla de red en hora pico | Media | Alto | Probar reconexión | Indicador y reintentos en el KDS (CP-14 pasa) | Comunicar la incidencia; ticket solo con impresora | **Mitigado y probado**; recuperación en ~0.3 s tras corregir D-19 |
 | R-02 | Órdenes no llegan al KDS a tiempo | Media | Alto | Polling de 800 ms con huella | Medición con navegador real (CP-07): p95 ≈ 0.83 s | Reducir el intervalo o usar Reverb si la red local lo empeora | **Mitigado** en el entorno de prueba; repetir en red local |
 | R-03 | Recetas o unidades incompatibles | Media | Alto | Unidad base por ingrediente | Validación en recetas y ajustes | Nueva versión y ajuste | Mitigado y probado |
 | R-04 | Doble descuento | Media | Alto | Cierre transaccional e idempotente | Bloqueo, verificación e índice único | Revisar historial | Probado en SQLite; falta MySQL |
@@ -609,6 +612,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-23 | Sprint 3-4, rama `feature/kds-administracion-estaciones`: administración de estaciones (B-36) con la regla de no desactivar una estación con pendientes; listado con un solo conteo agregado, sin N+1; se habilitó su ruta comentada; 15 pruebas nuevas. | 232/232 pruebas pasan en SQLite y MySQL; RF-04 cumplido con pruebas automáticas. | Medición del tiempo del KDS (B-23, rama `test/kds-medicion-tiempo`) |
 | 2026-11-23 | Sprint 3-4, rama `test/kds-medicion-tiempo`: script `tests/Rendimiento/medir-kds.mjs` (Edge real, protocolo DevTools, sin dependencias). Dos series: 20 y 30 órdenes. | 50/50 bajo 1 s; p95 828 y 821 ms. CP-07 pasa; RNF-01 y RF-05 cumplidos en el entorno de prueba; se descarta Reverb. | Reconexión del KDS (B-28, CP-14) |
 | 2026-11-23 | Sprint 3-4, rama `test/kds-reconexion`: script de falla de red con Edge real y módulo común `escenario-kds.mjs`. | CP-14 pasa 6/6; RNF-08 cumplido; recuperación de 4.6 s registrada como D-19. | Recuperación inmediata al volver la red (D-19, rama `fix/kds-recuperacion-inmediata`) |
+| 2026-11-23 | Rama `fix/kds-recuperacion-inmediata`: el KDS escucha `offline`/`online`; si una consulta está en curso al volver la red, la siguiente se agenda sin espera. | CP-14 6/6 en 3 ejecuciones; recuperación de 4565 ms a ~280 ms; latencia CP-07 sin cambios. Se detectó D-20. | Limpieza del perfil temporal de Edge (D-20) |
 
 ---
 
@@ -633,7 +637,8 @@ Se sigue el GitHub Flow del README §26:
 | `docs/flujo-ramas-y-cierre-sprint-2` | docs | Plantilla de PR, esta sección, cierre del Sprint 2 | Integrada en `main` (`24825c4`) |
 | `feature/kds-administracion-estaciones` | feature | Sprint 3-4, B-36: administración de estaciones | Integrada en `main` (`b0eee18`) |
 | `test/kds-medicion-tiempo` | test | Sprint 3-4, B-23: medición del tiempo del KDS (CP-07) | Integrada en `main` (`147eb66`) |
-| `test/kds-reconexion` | test | Sprint 3-4, B-28: prueba de falla de red (CP-14) y módulo común de los scripts | Integrada en `main` |
+| `test/kds-reconexion` | test | Sprint 3-4, B-28: prueba de falla de red (CP-14) y módulo común de los scripts | Integrada en `main` (`72977c1`) |
+| `fix/kds-recuperacion-inmediata` | fix | D-19: reconsultar en cuanto vuelve la red | Integrada en `main` |
 
 ### 11.3. Reescritura del historial (2026-11-23)
 

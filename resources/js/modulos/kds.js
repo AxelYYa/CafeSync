@@ -8,6 +8,7 @@ const ESPERA_MAXIMA_MS = 10000;
  * - Consulta periódica (polling): pide /kds/{estacion}/datos con la huella de versión actual; el servidor
  *   solo devuelve HTML cuando algo cambió. La siguiente consulta se agenda al terminar la anterior.
  * - Si la red falla, avisa en pantalla y reintenta con espera creciente; al reconectar, la huella evita duplicados.
+ *   Los eventos `offline`/`online` del navegador avisan de inmediato y vuelven a consultar sin esperar el reintento.
  * - Los cambios de estado se envían por fetch y se fuerza una consulta inmediata.
  * - Help Mode abre la receta en un diálogo sobre la orden, sin salir de la pantalla.
  */
@@ -22,6 +23,7 @@ export function iniciarKds(raiz) {
     let fallos = 0;
     let temporizador = null;
     let consultando = false;
+    let consultarAlTerminar = false;
 
     const consultar = async () => {
         clearTimeout(temporizador);
@@ -65,7 +67,8 @@ export function iniciarKds(raiz) {
         } finally {
             consultando = false;
             const espera = fallos === 0 ? intervalo : Math.min(intervalo * 2 ** fallos, ESPERA_MAXIMA_MS);
-            temporizador = setTimeout(consultar, espera);
+            temporizador = setTimeout(consultar, consultarAlTerminar ? 0 : espera);
+            consultarAlTerminar = false;
         }
     };
 
@@ -160,6 +163,12 @@ export function iniciarKds(raiz) {
         } catch {
             mostrarError('No se pudo abrir la receta. Revisa la conexión.');
         }
+    });
+
+    window.addEventListener('offline', () => conexion(false));
+    window.addEventListener('online', () => {
+        fallos = 0;
+        consultando ? (consultarAlTerminar = true) : consultar();
     });
 
     actualizarTiempos();
