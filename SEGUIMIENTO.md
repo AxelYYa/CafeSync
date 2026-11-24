@@ -482,6 +482,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | D-17 | Crítico | En MySQL ninguna orden se guardaba: el folio temporal `TMP-<uuid>` (40 caracteres) excedía `ordenes.folio` VARCHAR(30). SQLite no valida la longitud | **Corregido** (`74a463f`): folio temporal `TMP<ULID>` de 29 caracteres; detectado al correr la suite en MySQL |
 | D-19 | Bajo | Al volver la red, el KDS tardaba hasta ~6 s en recuperarse porque esperaba el siguiente reintento (la espera crece de 1.6 s a 10 s) | **Corregido** (rama `fix/kds-recuperacion-inmediata`): la pantalla escucha `offline`/`online` y consulta de inmediato al volver la red; recuperación medida 267–290 ms en 3 ejecuciones de CP-14 (antes 4565 ms) |
 | D-20 | Bajo | Los scripts de `tests/Rendimiento` terminaban con error, o dejaban Edge abierto y su carpeta temporal, porque el ejecutable lanzado solo es un **lanzador**: el navegador real tiene otro PID y sus procesos hijos retienen el perfil | **Corregido** en dos pasos: `fix/scripts-kds-limpieza-perfil` (el fallo de limpieza ya no falla la prueba) y `fix/scripts-kds-cerrar-procesos` (se cierra el WebSocket y se terminan solo los procesos de Edge que usan ese perfil). Un intento intermedio con `taskkill /T` sobre el PID del lanzador no funcionó y dejó el script sin terminar; se descartó. Verificado: 5 ejecuciones seguidas con código 0, sin avisos, sin perfiles ni procesos restantes |
+| D-21 | Alto | `composer run dev` fallaba en Windows: lanzaba `php artisan pail`, que exige la extensión `pcntl` (inexistente en PHP para Windows), y por `--kill-others` se apagaban también el servidor, la cola y Vite. Lo reportó el responsable al preparar las pruebas manuales | **Corregido** (rama `fix/composer-dev-windows`): se quitó Pail del script; verificado: servidor 200, cola y Vite activos, estilos servidos por Vite (200) |
 | D-18 | Medio | `composer audit` reporta 8 avisos de seguridad en 5 paquetes Symfony que trae Laravel (`http-foundation`, `http-kernel`, `mime`, `routing`, `yaml`); ninguno en `twilio/sdk` | Abierto — actualizar dependencias requiere aprobación (§8.2-9) |
 
 ---
@@ -630,6 +631,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-23 | Rama `test/kds-flujo-preparacion`: script que pulsa «Iniciar», «Marcar lista» y «Receta» en Edge real. | 7/7; RF-05 y RF-06 cumplidos en navegador. El aviso de limpieza reapareció: D-20 pasa a parcial. | Terminar el árbol de procesos de Edge (D-20) |
 | 2026-11-23 | Rama `fix/scripts-kds-cerrar-procesos`. El primer intento (`taskkill /T`) dejó colgado el script: se detuvo la tarea, se terminaron solo los procesos de prueba (perfil `cafesync-kds-`) y se encontró la causa (PID del lanzador). Corrección: cerrar el WebSocket y terminar los procesos de ese perfil. | D-20 corregido; 5 ejecuciones limpias. | Cierre de los Sprints 3-4 |
 | 2026-11-23 | Rama `docs/cierre-sprints-3-4`: revisión de cierre del Sprint 3-4 con la suite final en `main` (232 en SQLite y MySQL). | Hito del Sprint 3-4 cumplido; pendiente la repetición en red local. | Confirmación del responsable para cerrar e iniciar el Sprint 5 |
+| 2026-11-23 | El responsable reportó que `composer run dev` se detenía al iniciar (Pail requiere `pcntl`). Rama `fix/composer-dev-windows`: se quitó Pail del script `dev` y se documentó en README §27.5. | `composer run dev` verificado: servidor, cola y Vite activos; login 200 y estilos desde Vite. D-21 corregido. | Pruebas manuales M-01 a M-08 del responsable |
 
 ---
 
@@ -659,7 +661,8 @@ Se sigue el GitHub Flow del README §26:
 | `fix/scripts-kds-limpieza-perfil` | fix | D-20: limpieza robusta del perfil temporal de Edge; resultado de CP-14 en el README | Integrada en `main` (`9123876`) |
 | `test/kds-flujo-preparacion` | test | Flujo de preparación y Help Mode en Edge real (hito de los Sprints 3-4) | Integrada en `main` (`5472137`) |
 | `fix/scripts-kds-cerrar-procesos` | fix | D-20: cierre fiable de Edge en Windows | Integrada en `main` (`7027ffa`) |
-| `docs/cierre-sprints-3-4` | docs | Revisión de cierre del Sprint 3-4 | Integrada en `main` |
+| `docs/cierre-sprints-3-4` | docs | Revisión de cierre del Sprint 3-4 | Integrada en `main` (`a8a6a13`) |
+| `fix/composer-dev-windows` | fix | D-21: `composer run dev` sin Pail para Windows | Integrada en `main` |
 
 ### 11.3. Reescritura del historial (2026-11-23)
 
