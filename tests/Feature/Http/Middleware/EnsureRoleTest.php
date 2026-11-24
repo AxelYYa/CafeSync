@@ -11,6 +11,8 @@ dataset('pantallas administrativas', [
     'alta de usuario' => ['admin.usuarios.create'],
     'asistencias' => ['admin.asistencias.index'],
     'tokens' => ['admin.tokens.index'],
+    'estaciones' => ['admin.estaciones.index'],
+    'alta de estación' => ['admin.estaciones.create'],
 ]);
 
 it('lets the manager open the administrative screens', function (string $ruta) {

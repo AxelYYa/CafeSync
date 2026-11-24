@@ -508,6 +508,7 @@ Los puntos por confirmar se resolvieron así en el código (registro en `SEGUIMI
 | Cancelar una venta cerrada | Solo el gerente, mediante una reversión con motivo que devuelve los ingredientes con movimientos de tipo `reversion`. | `CierreVentaService::revertir` |
 | Estados de preparación | Solo avanzan un paso: pendiente → en preparación → lista. Cuando todos los renglones están listos, la orden pasa a «lista». | `EstadoPreparacion`, `DetalleOrdenObserver` |
 | Asistencia | Debe alternar entrada y salida; un PIN inválido o de una cuenta inactiva no genera registro. | `AsistenciaService` |
+| Estaciones | El gerente las crea, edita y desactiva; no se borran. Una estación con pendientes en órdenes en curso no puede desactivarse. Al desactivarla, sus productos dejan de venderse en el POS y su pantalla sale de la lista del KDS. | `EstacionService`, `EstacionController` |
 
 ## 12. Modelo conceptual de datos
 

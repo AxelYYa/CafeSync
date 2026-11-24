@@ -51,7 +51,7 @@ Documento de control del proyecto bajo el **Scrum adaptado** del README (§15–
 | Correo | SMTP del sandbox de **Mailtrap** en `.env` (pruebas). El SMTP productivo queda pendiente por decisión del responsable |
 | Twilio | Twilio Verify integrado con el SDK oficial. `.env` tiene Account SID y Verify Service SID; **API Key y secreto vacíos** hasta regenerarlos (las credenciales anteriores se expusieron) |
 | Rutas | 51 rutas; `php artisan route:list` funciona desde `43aa784` |
-| Pruebas | 217 pruebas Pest (47 unitarias + 170 de integración), todas pasan en SQLite y en MySQL (§4.7) |
+| Pruebas | 232 pruebas Pest (47 unitarias + 185 de integración), todas pasan en SQLite y en MySQL (§4.7) |
 | GitHub CLI | `gh` instalado pero **sin sesión iniciada** → sin PR ni protección de ramas consultables |
 
 ### Historial de Git
@@ -160,13 +160,13 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 | :--- | :--- |
 | 1. Objetivo | README §17: *desarrollar vistas de preparación, filtros por estación, estados de orden y mecanismo de actualización sin recarga manual.* Hito: **la orden llega a la estación correcta y puede marcarse como lista.** |
 | 2. Planificado | T-05 (pantallas KDS por zona) y T-06 (Help Mode). Lo que falta, porque la lógica y las pantallas operativas se adelantaron en el Sprint 2 (§2): (1) administración de estaciones (B-36); (2) medición del tiempo envío → visualización, CP-07 y RNF-01 (B-23); (3) prueba de reconexión, CP-14 (B-28); (4) pendientes trasladados del Sprint 2. |
-| 3. Realizado | 2026-11-23: preparación del flujo de ramas y cierre documental del Sprint 2 (rama `docs/flujo-ramas-y-cierre-sprint-2`). |
-| 4. Funcionalidades | — |
-| 5. Archivos | `.github/pull_request_template.md`, `SEGUIMIENTO.md`, `README.md` |
-| 6. Pruebas | Sin cambios de código en este registro. |
+| 3. Realizado | 2026-11-23: preparación del flujo de ramas y cierre documental del Sprint 2 (rama `docs/flujo-ramas-y-cierre-sprint-2`). **B-36 administración de estaciones** (rama `feature/kds-administracion-estaciones`). |
+| 4. Funcionalidades | **Estaciones:** el gerente crea, renombra, describe, activa y desactiva zonas de preparación. La lista muestra productos activos y pendientes de cada pantalla KDS. No se puede desactivar una estación con pendientes en órdenes en curso; al desactivarla, sus productos salen del POS y su pantalla de la lista del KDS. Las estaciones no se borran, para conservar el historial de lo vendido. |
+| 5. Archivos | `.github/pull_request_template.md`; `app/Http/Controllers/Admin/EstacionController.php`, `app/Services/Catalogo/EstacionService.php`, `resources/views/admin/estaciones/*`, `routes/web.php`, `resources/js/modulos/formularios.js`; `tests/Feature/Http/Controllers/Admin/EstacionControllerTest.php`, `tests/Feature/Http/Middleware/EnsureRoleTest.php`; `SEGUIMIENTO.md`, `README.md` |
+| 6. Pruebas | `EstacionControllerTest` (9) y 6 casos nuevos en `EnsureRoleTest`. Suite: **232 pasan** en SQLite y en MySQL (§4.7). |
 | 7. Problemas y solución | El filtro que quitó la coautoría también reescribió los dos commits del Sprint 1 que ya estaban en `main`; la rama del Sprint 2 se reacomodó sobre el `main` real con `git rebase --committer-date-is-author-date` y se comprobó que el árbol final es idéntico (§11.3). |
-| 8. Pendientes | B-36, B-23, B-28 y los trasladados del Sprint 2. |
-| 9. Evidencia | — |
+| 8. Pendientes | B-23 (medición CP-07), B-28 (reconexión CP-14) y los trasladados del Sprint 2. |
+| 9. Evidencia | Merge de `feature/kds-administracion-estaciones` en `main` (§11.2); §4.4 y §4.7. |
 | 10. Conclusión | En curso. |
 
 ### 3.5. Plantilla para los siguientes sprints
@@ -240,7 +240,7 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | `tests/Unit/Services/SeguridadUnitTest.php` | 6 | Normalización de la respuesta secreta; identificación de dispositivo, navegador y sistema |
 | `tests/Unit/ExampleTest.php` | 1 | Prueba de ejemplo de Laravel (sin cambios) |
 
-### 4.4. Pruebas de integración (170)
+### 4.4. Pruebas de integración (185)
 
 | Archivo | Pruebas | Qué verifica |
 | :--- | :---: | :--- |
@@ -257,6 +257,7 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | `Feature/Http/Controllers/Cuenta/SeguridadControllerTest.php` | 9 | PIN y respuesta con hash, PIN duplicado, teléfono, contraseña débil, errores por formulario |
 | `Feature/Http/Controllers/Admin/UsuarioControllerTest.php` | 11 | Alta con login y PIN funcionales, validaciones, duplicados, desactivación con revocación, autoprotección del gerente |
 | `Feature/Http/Controllers/Admin/AsistenciaReporteControllerTest.php` | 3 | Jornadas y horas contra cálculo manual, filtro por empleado, periodo inválido |
+| `Feature/Http/Controllers/Admin/EstacionControllerTest.php` | 9 | Lista con productos y pendientes; alta visible en el KDS; nombre duplicado, corto o vacío; renombrar conserva el historial; desactivar saca los productos del POS; no se desactiva con pendientes; sí se desactiva cuando sus órdenes terminaron |
 | `Feature/Http/Controllers/Admin/TokenApiControllerTest.php` | 5 | Token real autentica la API con sus permisos, revocación, vencimiento, secreto mostrado una sola vez |
 | `Feature/Http/Controllers/AsistenciaControllerTest.php` | 8 | Hora del servidor, PIN inválido o inactivo, secuencia, bloqueo, formato |
 | `Feature/Http/Controllers/PosControllerTest.php` | 6 | Precio del servidor, validaciones, faltantes, catálogo por estación |
@@ -266,7 +267,7 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | `Feature/Http/Controllers/AyudaControllerTest.php` | 3 | Help Mode con la receta correcta |
 | `Feature/Http/Controllers/TareaControllerTest.php` | 5 | Completar con quién y cuándo, tareas ajenas prohibidas, idempotencia |
 | `Feature/Http/Controllers/DashboardControllerTest.php` | 2 | Cifras del gerente ocultas al empleado |
-| `Feature/Http/Middleware/EnsureRoleTest.php` | 14 | Cada pantalla de `/admin`: gerente 200, empleado 403, invitado al login; formularios enviados directamente |
+| `Feature/Http/Middleware/EnsureRoleTest.php` | 20 | Cada pantalla de `/admin`: gerente 200, empleado 403, invitado al login; formularios enviados directamente |
 | `Feature/Http/Middleware/EnsureUserIsActiveTest.php` | 2 | Cuenta desactivada durante su sesión |
 | `Feature/Http/Middleware/SecurityHeadersTest.php` | 3 | Encabezados y CSP, escape de HTML (XSS), CSRF con entorno de producción (419) |
 | `Feature/ExampleTest.php` | 1 | `/` redirige al panel y el invitado va al login |
@@ -327,6 +328,8 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | 2026-11-11 | Concurrencia: 6 procesos `tinker` en paralelo cierran la misma orden en MySQL | 6 terminan sin error; un solo descuento (2 movimientos); orden cerrada |
 | 2026-11-11 | Envío real de recuperación por correo (`RecuperacionPasswordService::solicitar('gerente', correo)`) con SMTP de Mailtrap | El servidor SMTP aceptó el mensaje; la solicitud quedó vigente; sin errores en el log. La recepción en la bandeja se confirma en M-07 |
 | 2026-11-11 | `php artisan test --compact` y suite en MySQL (`20e8093`) | **217 pasan, 0 fallan** (650 aserciones) en ambos gestores |
+| 2026-11-23 | Suite antes de integrar el Sprint 2 en `main` | **217 pasan, 0 fallan** |
+| 2026-11-23 | Suite en `feature/kds-administracion-estaciones`, SQLite y MySQL; `npm run build` | **232 pasan, 0 fallan** (689 aserciones) en ambos gestores; compila sin errores |
 
 ### 4.8. Pruebas manuales pendientes del Sprint 2 (las ejecuta el responsable)
 
@@ -354,7 +357,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | RF-01 | Autenticación y roles | P1 | 2 | **CUMPLIDO** (automático) | `LoginControllerTest`, `EnsureRoleTest`, `UsuarioControllerTest` | M-01, M-06 |
 | RF-02 | Clasificación por canal | P1 | 2 | **CUMPLIDO** (automático) | CP-05 | M-02 |
 | RF-03 | Captura de venta | P1 | 2 | **CUMPLIDO** (automático) | `PosControllerTest`, `OrdenServiceTest` | M-02 |
-| RF-04 | Enrutamiento por estación | P1 | 3-4 | PARCIAL (adelantado) | CP-06 | Administración de estaciones |
+| RF-04 | Enrutamiento por estación | P1 | 3-4 | **CUMPLIDO** (automático) | CP-06; administración de estaciones (`EstacionControllerTest`) | Prueba manual en navegador |
 | RF-05 | Actualización del KDS | P1 | 3-4 | PARCIAL (adelantado) | `KdsControllerTest` | CP-07 |
 | RF-06 | Help Mode | P1 | 3-4 | PARCIAL (adelantado) | CP-08 | Prueba en navegador |
 | RF-07 | Configuración de recetas | P1 | 5 | PARCIAL (adelantado) | `RecetaServiceTest` | Pantalla de recetas |
@@ -462,6 +465,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | B-34 | Reporte de asistencias del gerente | 2 | `44d8524`; `AsistenciaReporteControllerTest` |
 | B-35 | Pruebas unitarias de reglas de negocio | 2 | `6412274`; 47 pruebas |
 | B-15 | MySQL local y suite en MySQL | 2 | `74a463f`; 217 pruebas en MySQL; concurrencia CP-10 |
+| B-36 | Administración de estaciones | 3-4 | `EstacionControllerTest` (9), 232 pruebas en SQLite y MySQL |
 | B-40 | Twilio Verify con SDK oficial | 2 | `ded5191`; 7 pruebas con cliente simulado |
 
 ### En revisión/pruebas (falta verificación manual o un bloqueo externo)
@@ -492,7 +496,6 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | ID | Tarjeta | Sprint | Depende de |
 | :--- | :--- | :---: | :--- |
 | B-31 | `push`, PR, plantilla de PR y protección de `main` | 2 (bloqueado) | `gh auth login` (§8-6) |
-| B-36 | Administración de estaciones | 3-4 | Cierre del Sprint 2 |
 | B-23 | Medición del KDS en navegador real | 3-4 | Cierre del Sprint 2 |
 | B-28 | Prueba de reconexión del KDS | 3-4 | B-23 |
 | B-37 | Administración de productos y recetas | 5 | Sprints 3-4 |
@@ -528,6 +531,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-23 | Los commits solo muestran la identidad Git del responsable; se quitó del historial la línea `Co-Authored-By` agregada por el asistente | Indicación del responsable | Historial reescrito (§11.3) |
 | 2026-11-23 | Una rama por tarea, creada desde `main`, con los prefijos del README §26.1 e integrada con `--no-ff` | Indicación del responsable; GitHub Flow del README | §11.1 |
 | 2026-11-23 | Cerrar el Sprint 2 con pendientes trasladados e iniciar el Sprint 3-4 | El responsable indicó continuar con el desarrollo | §3.3, §3.4 |
+| 2026-11-23 | Una estación con pendientes en órdenes en curso no puede desactivarse; las estaciones no se borran | Evitar que una preparación quede sin pantalla y conservar el historial (README §22.4) | README §11.4; `EstacionControllerTest` |
 
 ### 8.2. Decisiones pendientes del responsable
 
@@ -577,6 +581,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-11 | Revisión de la planificación (README §17) frente al código: se documentó el trabajo adelantado y se decidió limitar el desarrollo al Sprint 2. Incremento 3: rutas por sprint, usuarios y roles, reporte de asistencias, tokens, errores por formulario, 47 pruebas unitarias y pruebas de seguridad. Reestructura de este documento y actualización del README. | 212/212 pruebas pasan; D-01, D-02, D-14, D-15, D-16 corregidos; hito del Sprint 2 cumplido con pruebas automatizadas. | El responsable ejecuta M-01 a M-06 (§4.8) y resuelve §8.2; después se cierra el Sprint 2 y se abre el Sprint 3-4 (KDS) |
 | 2026-11-11 | Incremento 4 del Sprint 2 con datos del responsable: MySQL 8.0.46 (bases `cafesync` y `cafesync_pruebas`), Mailtrap y Twilio Verify con SDK oficial; confirmación de D-09. La suite en MySQL detectó D-17 (crítico) y se corrigió. Concurrencia del cierre de venta verificada con 6 procesos. Se comprobó que ningún secreto está en el historial de Git. | 217/217 pruebas pasan en SQLite y MySQL; RB-19, RNF-04 cumplidos; RB-07 en sandbox; D-05, D-09, D-17 resueltos; D-18 registrado. | Regenerar la API Key de Twilio; ejecutar M-01 a M-08; decidir D-18; cerrar el Sprint 2 |
 | 2026-11-23 | A petición del responsable: se quitó la coautoría del asistente en los 21 commits del Sprint 2 (historial reescrito localmente, código idéntico) y se adoptó una rama por tarea. Merge local del Sprint 2 en `main` (`cf23603`). Rama `docs/flujo-ramas-y-cierre-sprint-2`: plantilla de PR, §11 de control de versiones, cierre del Sprint 2 y apertura del Sprint 3-4. | 217/217 pruebas pasan antes del merge. El `push --force` de la rama reescrita lo bloqueó el sistema de permisos del asistente: queda para el responsable (§11.4). | Sprint 3-4: administración de estaciones (rama `feature/kds-administracion-estaciones`) |
+| 2026-11-23 | Sprint 3-4, rama `feature/kds-administracion-estaciones`: administración de estaciones (B-36) con la regla de no desactivar una estación con pendientes; listado con un solo conteo agregado, sin N+1; se habilitó su ruta comentada; 15 pruebas nuevas. | 232/232 pruebas pasan en SQLite y MySQL; RF-04 cumplido con pruebas automáticas. | Medición del tiempo del KDS (B-23, rama `test/kds-medicion-tiempo`) |
 
 ---
 
@@ -598,7 +603,8 @@ Se sigue el GitHub Flow del README §26:
 | :--- | :--- | :--- | :--- |
 | `feature/base-datos-modelos` | feature | Sprint 1: esquema, modelos y datos base | Integrada en `main` (`fcaf430`) |
 | `feature/autenticacion-seguridad` | feature | Sprint 2 completo: acceso, seguridad, POS, interfaz, pruebas, MySQL, Mailtrap, Twilio Verify. **Concentró trabajo de varios temas en una sola rama**; desde el 2026-11-23 cada tema va en su propia rama | Integrada en `main` (`cf23603`) |
-| `docs/flujo-ramas-y-cierre-sprint-2` | docs | Plantilla de PR, esta sección, cierre del Sprint 2 | En curso |
+| `docs/flujo-ramas-y-cierre-sprint-2` | docs | Plantilla de PR, esta sección, cierre del Sprint 2 | Integrada en `main` (`24825c4`) |
+| `feature/kds-administracion-estaciones` | feature | Sprint 3-4, B-36: administración de estaciones | Integrada en `main` |
 
 ### 11.3. Reescritura del historial (2026-11-23)
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AsistenciaReporteController;
+use App\Http\Controllers\Admin\EstacionController;
 use App\Http\Controllers\Admin\TokenApiController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\AsistenciaController;
@@ -84,12 +85,12 @@ Route::middleware('auth')->group(function () {
         Route::post('tokens', [TokenApiController::class, 'store'])->name('tokens.store');
         Route::delete('tokens/{token}', [TokenApiController::class, 'destroy'])->name('tokens.destroy');
 
+        // Sprints 3 y 4 — KDS: zonas de preparación.
+        Route::resource('estaciones', EstacionController::class)->except(['show', 'destroy'])->parameters(['estaciones' => 'estacion']);
+
         /*
         | Rutas planificadas para sprints posteriores (README §17). Se habilitan cuando exista su controlador,
         | para que `route:list` / `route:cache` funcionen y el menú no enlace a pantallas inexistentes.
-        |
-        | Sprints 3 y 4 — KDS:
-        |   Route::resource('estaciones', \App\Http\Controllers\Admin\EstacionController::class)->except(['show', 'destroy'])->parameters(['estaciones' => 'estacion']);
         |
         | Sprint 5 — Inventario y tareas:
         |   Route::resource('productos', \App\Http\Controllers\Admin\ProductoController::class)->except(['show', 'destroy']);
