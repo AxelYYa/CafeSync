@@ -6,7 +6,7 @@
  * - prepararEscenario(): inicia sesión en ambos lados, abre la pantalla KDS de la estación del producto y registra
  *   en `window.__apariciones` la hora en que aparece cada tarjeta de orden.
  */
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -190,15 +190,21 @@ export class Navegador {
     }
 
     /**
-     * Cierra Edge y borra su perfil temporal. En Windows los procesos hijos de Edge pueden retener archivos
-     * unos instantes: se espera la salida del proceso y se reintenta el borrado. Si aun así falla, solo se avisa,
-     * porque el resultado de la prueba ya se calculó.
+     * Cierra Edge y borra su perfil temporal. En Windows el ejecutable lanzado solo es un lanzador: el navegador real
+     * y sus procesos hijos tienen otros PID y pueden seguir reteniendo el perfil, así que se terminan los procesos que
+     * usan ese perfil (nunca otras ventanas de Edge). El borrado se reintenta y, si aun así falla, solo se avisa.
      */
     async cerrar() {
-        const terminado = new Promise((resolver) => this.proceso.once('exit', resolver));
-        await this.enviar('Browser.close').catch(() => {});
-        await Promise.race([terminado, esperar(3000)]);
+        await Promise.race([this.enviar('Browser.close').catch(() => {}), esperar(2000)]);
+        this.#socket.close();
         this.proceso.kill();
+        await esperar(1000);
+
+        if (process.platform === 'win32') {
+            spawnSync('powershell', ['-NoProfile', '-NonInteractive', '-Command',
+                `Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" | Where-Object { $_.CommandLine -like '*${this.perfil}*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`,
+            ], { stdio: 'ignore' });
+        }
 
         try {
             rmSync(this.perfil, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
