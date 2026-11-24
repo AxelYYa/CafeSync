@@ -1665,6 +1665,8 @@ Para iniciar Laravel en desarrollo:
 composer run dev
 ```
 
+En CaféSync, `composer run dev` levanta el servidor de Laravel, el procesador de la cola y Vite. No incluye `php artisan pail`, porque Pail necesita la extensión `pcntl`, que no existe en PHP para Windows (los logs están en `storage/logs/laravel.log`). Si al detenerlo la página se ve sin estilos, borra `public/hot` o ejecuta `npm run build`.
+
 Si el `composer.json` de la versión instalada no contiene ese script, utiliza:
 
 ```powershell
