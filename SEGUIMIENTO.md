@@ -9,7 +9,7 @@ Documento de control del proyecto bajo el **Scrum adaptado** del README (§15–
 | :--- | :--- |
 | Responsable (todas las funciones) | Axel Espinoza Blanco — desarrollo individual |
 | Fecha de corte | 2026-11-23 |
-| Sprint actual | **Sprints 3 y 4 — KDS** (en curso desde el 2026-11-23, §3.4). Sprint 2 cerrado con pendientes trasladados (§3.3) |
+| Sprint actual | **Sprints 3 y 4 — KDS**: hito cumplido, en revisión de cierre (§3.4). Sprint 2 cerrado con pendientes trasladados (§3.3). El Sprint 5 no se ha iniciado |
 | Ramas | Una rama por tarea creada desde `main` e integrada con `--no-ff` (§11) |
 | Fuente funcional | `README.md` (especificación v2, 19-oct-2026) |
 | Fuente de calidad | Rúbrica de la Unidad 3, nivel EXCELENTE. **El documento de la rúbrica no está en el repositorio**; sus criterios se tomaron de las instrucciones del responsable (ver §4.1). |
@@ -154,7 +154,7 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 | 9. Evidencia | §4.5 (CP), §4.6 (matriz rúbrica ↔ pruebas), §4.7 (ejecuciones). Commits `43b2f4d` … `6412274`. |
 | 10. Conclusión | **Objetivo y hito del Sprint 2 cumplidos con pruebas automatizadas.** El cierre formal queda **en revisión** hasta que el responsable ejecute las verificaciones manuales de §4.8. Los pendientes (b), (c) y (f) dependen de acciones externas o de una aprobación; no impiden el flujo del sprint, pero deben resolverse antes del Sprint 6. **Cierre (2026-11-23):** el responsable indicó continuar con el desarrollo. El Sprint 2 se **cierra con el hito cumplido** y estos pendientes **trasladados al Sprint 3-4**, sin marcarlos como aprobados: verificaciones manuales M-01 a M-08, regeneración de la API Key de Twilio, SMTP productivo, actualización de Symfony (D-18) y publicación en GitHub (§11.4). Integración en `main`: merge `cf23603`. |
 
-### 3.4. Sprints 3 y 4 — KDS (en curso)
+### 3.4. Sprints 3 y 4 — KDS (revisión de cierre)
 
 | Campo | Registro |
 | :--- | :--- |
@@ -164,10 +164,10 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 | 4. Funcionalidades | **Estaciones:** el gerente crea, renombra, describe, activa y desactiva zonas de preparación. La lista muestra productos activos y pendientes de cada pantalla KDS. No se puede desactivar una estación con pendientes en órdenes en curso; al desactivarla, sus productos salen del POS y su pantalla de la lista del KDS. Las estaciones no se borran, para conservar el historial de lo vendido. **Medición del KDS:** script reproducible que abre la pantalla real en Edge y mide cuánto tarda una orden del POS en aparecer. |
 | 5. Archivos | `.github/pull_request_template.md`; `app/Http/Controllers/Admin/EstacionController.php`, `app/Services/Catalogo/EstacionService.php`, `resources/views/admin/estaciones/*`, `routes/web.php`, `resources/js/modulos/formularios.js`; `tests/Feature/Http/Controllers/Admin/EstacionControllerTest.php`, `tests/Feature/Http/Middleware/EnsureRoleTest.php`; `tests/Rendimiento/escenario-kds.mjs`, `tests/Rendimiento/medir-kds.mjs`, `tests/Rendimiento/probar-reconexion-kds.mjs`, `tests/Rendimiento/probar-flujo-kds.mjs`; `SEGUIMIENTO.md`, `README.md` |
 | 6. Pruebas | `EstacionControllerTest` (9) y 6 casos nuevos en `EnsureRoleTest`. Suite: **232 pasan** en SQLite y en MySQL (§4.7). **CP-07:** 2 series (20 y 30 órdenes), 50 de 50 visibles en menos de 1 s; p95 828 ms y 821 ms (§4.5). **CP-14:** 6 de 6 verificaciones pasan; la recuperación tras 6 s sin red tardó 4.6 s por la espera creciente entre reintentos (D-19); tras la corrección, 267–290 ms. **Flujo de preparación (hito del sprint):** 7 de 7 verificaciones en Edge real. |
-| 7. Problemas y solución | El filtro que quitó la coautoría también reescribió los dos commits del Sprint 1 que ya estaban en `main`; la rama del Sprint 2 se reacomodó sobre el `main` real con `git rebase --committer-date-is-author-date` y se comprobó que el árbol final es idéntico (§11.3). |
+| 7. Problemas y solución | D-19: la pantalla tardaba hasta ~6 s en recuperarse al volver la red; se corrigió escuchando `online`/`offline` (~0.3 s). D-20: los scripts de navegador fallaban o dejaban Edge abierto; se corrigió terminando solo los procesos del perfil de prueba, después de descartar un intento con `taskkill /T` que no alcanzaba al navegador real. Conteo N+1 en la lista de estaciones: se reemplazó por un `withCount`. El filtro que quitó la coautoría también reescribió los dos commits del Sprint 1 que ya estaban en `main`; la rama del Sprint 2 se reacomodó sobre el `main` real con `git rebase --committer-date-is-author-date` y se comprobó que el árbol final es idéntico (§11.3). |
 | 8. Pendientes | Repetir CP-07 y CP-14 con dispositivos en red local y los trasladados del Sprint 2. |
-| 9. Evidencia | Merge de `feature/kds-administracion-estaciones` en `main` (§11.2); §4.4 y §4.7. |
-| 10. Conclusión | En curso. |
+| 9. Evidencia | Merges en `main`: `b0eee18` (estaciones), `147eb66` (medición), `72977c1` (reconexión), `32de233` (D-19), `9123876` y `7027ffa` (D-20), `5472137` (flujo de preparación) (§11.2). Resultados en §4.5 (CP-06, CP-07, CP-08, CP-14) y §4.7. Suite final en `main`: **232 pasan en SQLite y en MySQL** (2026-11-23). |
+| 10. Conclusión | **Hito cumplido:** *la orden llega a la estación correcta y puede marcarse como lista*. Lo demuestran las pruebas automáticas (CP-06, `KdsControllerTest`, `PreparacionServiceTest`) y Edge real (`probar-flujo-kds.mjs`: los botones «Iniciar» y «Marcar lista» persisten). Actualización sin recarga en menos de 1 s (CP-07, p95 ≈ 0.83 s) y recuperación ante falla de red sin duplicados (CP-14). Pendiente de este sprint: repetir CP-07 y CP-14 con la caja y las pantallas en dispositivos distintos de la red local. Se mantienen los trasladados del Sprint 2. **El cierre formal y el inicio del Sprint 5 quedan a confirmación del responsable.** |
 
 ### 3.5. Plantilla para los siguientes sprints
 
@@ -362,6 +362,7 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | 2026-11-23 | `probar-reconexion-kds.mjs` ×3 con la corrección de D-19 | 6/6 en cada ejecución; recuperación 288, 267 y 286 ms |
 | 2026-11-23 | `node tests/Rendimiento/probar-flujo-kds.mjs` | 7/7 verificaciones pasan; código de salida 0. Se mostró el aviso de limpieza del perfil temporal (D-20 sigue ocurriendo en forma de aviso) |
 | 2026-11-23 | Primer intento de terminar Edge con `taskkill /T` sobre el PID lanzado | El script no terminó (se detuvo con `timeout`: código 124) y Edge siguió activo con 13 procesos del perfil; causa: el PID era del lanzador, no del navegador |
+| 2026-11-23 | Suite completa en `main` tras integrar todas las ramas del Sprint 3-4 | **232 pasan, 0 fallan** (689 aserciones) en SQLite y en MySQL; 47 unitarias |
 | 2026-11-23 | Corrección final de D-20: `probar-flujo-kds.mjs` ×3, `probar-reconexion-kds.mjs`, `medir-kds.mjs --ordenes=5` | 7/7, 7/7, 7/7, 6/6 y p95 666 ms; todos con código 0, sin avisos, 0 perfiles y 0 procesos de Edge de prueba restantes |
 | 2026-11-23 | Con la corrección de D-20: `medir-kds.mjs --ordenes=3` ×3 y `probar-reconexion-kds.mjs --desconexion=3000` | Sin errores ni avisos de limpieza; p95 572, 527 y 749 ms; reconexión 6/6; sin perfiles temporales restantes |
 | 2026-11-23 | `medir-kds.mjs --ordenes=10` con la corrección de D-19; `php artisan test --filter=Kds` | Mediana 528 ms, p95 841 ms; 20 pruebas PHP del KDS pasan. El script terminó con error al borrar el perfil temporal de Edge (`EPERM`) después de medir y cancelar: D-20 |
@@ -628,6 +629,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-23 | Rama `fix/scripts-kds-limpieza-perfil`: D-20 corregido; README §24.5 con el resultado de la falla de red. | 4 ejecuciones de los scripts sin error. | Pendientes trasladados y repetición en red local |
 | 2026-11-23 | Rama `test/kds-flujo-preparacion`: script que pulsa «Iniciar», «Marcar lista» y «Receta» en Edge real. | 7/7; RF-05 y RF-06 cumplidos en navegador. El aviso de limpieza reapareció: D-20 pasa a parcial. | Terminar el árbol de procesos de Edge (D-20) |
 | 2026-11-23 | Rama `fix/scripts-kds-cerrar-procesos`. El primer intento (`taskkill /T`) dejó colgado el script: se detuvo la tarea, se terminaron solo los procesos de prueba (perfil `cafesync-kds-`) y se encontró la causa (PID del lanzador). Corrección: cerrar el WebSocket y terminar los procesos de ese perfil. | D-20 corregido; 5 ejecuciones limpias. | Cierre de los Sprints 3-4 |
+| 2026-11-23 | Rama `docs/cierre-sprints-3-4`: revisión de cierre del Sprint 3-4 con la suite final en `main` (232 en SQLite y MySQL). | Hito del Sprint 3-4 cumplido; pendiente la repetición en red local. | Confirmación del responsable para cerrar e iniciar el Sprint 5 |
 
 ---
 
@@ -656,7 +658,8 @@ Se sigue el GitHub Flow del README §26:
 | `fix/kds-recuperacion-inmediata` | fix | D-19: reconsultar en cuanto vuelve la red | Integrada en `main` (`32de233`) |
 | `fix/scripts-kds-limpieza-perfil` | fix | D-20: limpieza robusta del perfil temporal de Edge; resultado de CP-14 en el README | Integrada en `main` (`9123876`) |
 | `test/kds-flujo-preparacion` | test | Flujo de preparación y Help Mode en Edge real (hito de los Sprints 3-4) | Integrada en `main` (`5472137`) |
-| `fix/scripts-kds-cerrar-procesos` | fix | D-20: cierre fiable de Edge en Windows | Integrada en `main` |
+| `fix/scripts-kds-cerrar-procesos` | fix | D-20: cierre fiable de Edge en Windows | Integrada en `main` (`7027ffa`) |
+| `docs/cierre-sprints-3-4` | docs | Revisión de cierre del Sprint 3-4 | Integrada en `main` |
 
 ### 11.3. Reescritura del historial (2026-11-23)
 
