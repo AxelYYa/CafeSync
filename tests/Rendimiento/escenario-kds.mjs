@@ -189,11 +189,22 @@ export class Navegador {
         return null;
     }
 
+    /**
+     * Cierra Edge y borra su perfil temporal. En Windows los procesos hijos de Edge pueden retener archivos
+     * unos instantes: se espera la salida del proceso y se reintenta el borrado. Si aun así falla, solo se avisa,
+     * porque el resultado de la prueba ya se calculó.
+     */
     async cerrar() {
+        const terminado = new Promise((resolver) => this.proceso.once('exit', resolver));
         await this.enviar('Browser.close').catch(() => {});
+        await Promise.race([terminado, esperar(3000)]);
         this.proceso.kill();
-        await esperar(500);
-        rmSync(this.perfil, { recursive: true, force: true });
+
+        try {
+            rmSync(this.perfil, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
+        } catch (error) {
+            console.warn(`Aviso: no se pudo borrar el perfil temporal de Edge (${this.perfil}): ${error.code ?? error.message}`);
+        }
     }
 }
 
