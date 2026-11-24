@@ -8,9 +8,9 @@ Documento de control del proyecto bajo el **Scrum adaptado** del README (§15–
 | Dato | Valor |
 | :--- | :--- |
 | Responsable (todas las funciones) | Axel Espinoza Blanco — desarrollo individual |
-| Fecha de corte | 2026-11-11 |
-| Sprint actual | **Sprint 2 — Acceso y POS** (revisión de cierre, §3.3) |
-| Rama de trabajo | `feature/autenticacion-seguridad` |
+| Fecha de corte | 2026-11-23 |
+| Sprint actual | **Sprints 3 y 4 — KDS** (en curso desde el 2026-11-23, §3.4). Sprint 2 cerrado con pendientes trasladados (§3.3) |
+| Ramas | Una rama por tarea creada desde `main` e integrada con `--no-ff` (§11) |
 | Fuente funcional | `README.md` (especificación v2, 19-oct-2026) |
 | Fuente de calidad | Rúbrica de la Unidad 3, nivel EXCELENTE. **El documento de la rúbrica no está en el repositorio**; sus criterios se tomaron de las instrucciones del responsable (ver §4.1). |
 
@@ -30,6 +30,7 @@ Documento de control del proyecto bajo el **Scrum adaptado** del README (§15–
 | Decisiones tomadas y pendientes | §8 |
 | Riesgos | §9 |
 | Bitácora de sesiones | §10 |
+| Control de versiones, ramas e historial | §11 |
 
 ### Convenciones
 
@@ -49,7 +50,7 @@ Documento de control del proyecto bajo el **Scrum adaptado** del README (§15–
 | Base de datos | **MySQL 8.0.46** local: base `cafesync` (desarrollo, migrada y con datos de demostración) y `cafesync_pruebas` (suite automatizada). La suite también corre en SQLite en memoria (configuración por defecto de `phpunit.xml`) |
 | Correo | SMTP del sandbox de **Mailtrap** en `.env` (pruebas). El SMTP productivo queda pendiente por decisión del responsable |
 | Twilio | Twilio Verify integrado con el SDK oficial. `.env` tiene Account SID y Verify Service SID; **API Key y secreto vacíos** hasta regenerarlos (las credenciales anteriores se expusieron) |
-| Rutas | 51 rutas; `php artisan route:list` funciona desde `191f315` |
+| Rutas | 51 rutas; `php artisan route:list` funciona desde `43aa784` |
 | Pruebas | 217 pruebas Pest (47 unitarias + 170 de integración), todas pasan en SQLite y en MySQL (§4.7) |
 | GitHub CLI | `gh` instalado pero **sin sesión iniciada** → sin PR ni protección de ramas consultables |
 
@@ -59,28 +60,28 @@ Documento de control del proyecto bajo el **Scrum adaptado** del README (§15–
 | :--- | :--- | :--- |
 | `01098eb` · `40b6c0d` · `448cd3b` | 2026-10-19 | Proyecto inicial y README v1/v2 — **último commit en `origin/main`** |
 | `f860f40` · `fcaf430` | 2026-11-03 | `feat:` modelo de datos, migraciones, enums y seeders; merge local en `main` (sin PR) |
-| `dcf164c` | 2026-11-10 | `feat:` autenticación por usuario o correo, MFA TOTP, multisesiones y middleware de seguridad |
-| `83890fe` | 2026-11-10 | `feat:` recuperación de contraseña por correo, pregunta secreta, SMS y llamada |
-| `a2d5de9` | 2026-11-10 | `feat:` POS, KDS por estación, Help Mode, cierre de venta e inventario por receta |
-| `72a4533` | 2026-11-10 | `feat:` reloj checador con PIN, tareas por turno, reporte de ventas y rutas web |
-| `bf5ed8e` | 2026-11-10 | `docs:` documento de seguimiento |
-| `76a5427` | 2026-11-10 | `fix:` Twilio, vencimiento de tokens, `.env.example` para MySQL, excepción de PIN inválido |
-| `270d1e4` | 2026-11-10 | `test:` 106 pruebas de dominio, seguridad y endpoints |
-| `a403fe2` | 2026-11-10 | `docs:` incremento 1 del Sprint 2 |
-| `98d8418` | 2026-11-10 | `feat:` identidad visual, layouts, componentes Blade, páginas de error y traducción al español |
-| `8790dc9` | 2026-11-10 | `feat:` pantallas de acceso, panel, POS, órdenes, KDS, Help Mode, reloj, tareas y seguridad |
-| `aad47a7` | 2026-11-10 | `test:` renderizado y visibilidad por rol de las pantallas |
-| `a390b0c` | 2026-11-10 | `docs:` incremento 2 del Sprint 2 |
-| `191f315` | 2026-11-11 | `fix:` activar solo las rutas administrativas del Sprint 2 (D-01, D-15) |
-| `674b08f` | 2026-11-11 | `fix:` errores separados por formulario en seguridad de la cuenta (D-16) |
-| `1504e5d` | 2026-11-11 | `feat:` administración de usuarios y roles, reporte de asistencias y tokens de pantallas |
-| `fc277e9` | 2026-11-11 | `test:` pruebas unitarias y de administración, protección de rutas y seguridad |
-| `bc4e14d` | 2026-11-11 | `docs:` cierre del Sprint 2, plan de pruebas y estado real en README |
-| `e2405fc` | 2026-11-11 | `fix:` folio temporal que no cabía en MySQL (D-17) |
-| `b0d4a90` | 2026-11-11 | `feat:` recuperación por SMS y llamada con Twilio Verify (SDK oficial) |
-| `b74f734` | 2026-11-11 | `test:` cancelación de órdenes por el empleado (D-09) |
+| `43b2f4d` | 2026-11-10 | `feat:` autenticación por usuario o correo, MFA TOTP, multisesiones y middleware de seguridad |
+| `0625b48` | 2026-11-10 | `feat:` recuperación de contraseña por correo, pregunta secreta, SMS y llamada |
+| `e677801` | 2026-11-10 | `feat:` POS, KDS por estación, Help Mode, cierre de venta e inventario por receta |
+| `cd1f496` | 2026-11-10 | `feat:` reloj checador con PIN, tareas por turno, reporte de ventas y rutas web |
+| `6c0c3e8` | 2026-11-10 | `docs:` documento de seguimiento |
+| `e4a1de7` | 2026-11-10 | `fix:` Twilio, vencimiento de tokens, `.env.example` para MySQL, excepción de PIN inválido |
+| `1d0fd37` | 2026-11-10 | `test:` 106 pruebas de dominio, seguridad y endpoints |
+| `ffbf0fa` | 2026-11-10 | `docs:` incremento 1 del Sprint 2 |
+| `911abbf` | 2026-11-10 | `feat:` identidad visual, layouts, componentes Blade, páginas de error y traducción al español |
+| `983c53b` | 2026-11-10 | `feat:` pantallas de acceso, panel, POS, órdenes, KDS, Help Mode, reloj, tareas y seguridad |
+| `d8534d9` | 2026-11-10 | `test:` renderizado y visibilidad por rol de las pantallas |
+| `f0c54db` | 2026-11-10 | `docs:` incremento 2 del Sprint 2 |
+| `43aa784` | 2026-11-11 | `fix:` activar solo las rutas administrativas del Sprint 2 (D-01, D-15) |
+| `5b55a44` | 2026-11-11 | `fix:` errores separados por formulario en seguridad de la cuenta (D-16) |
+| `44d8524` | 2026-11-11 | `feat:` administración de usuarios y roles, reporte de asistencias y tokens de pantallas |
+| `6412274` | 2026-11-11 | `test:` pruebas unitarias y de administración, protección de rutas y seguridad |
+| `9949a22` | 2026-11-11 | `docs:` cierre del Sprint 2, plan de pruebas y estado real en README |
+| `74a463f` | 2026-11-11 | `fix:` folio temporal que no cabía en MySQL (D-17) |
+| `ded5191` | 2026-11-11 | `feat:` recuperación por SMS y llamada con Twilio Verify (SDK oficial) |
+| `20e8093` | 2026-11-11 | `test:` cancelación de órdenes por el empleado (D-09) |
 
-`main` local va 2 commits adelante de `origin/main` y `feature/autenticacion-seguridad` no está publicada (D-06).
+Los hashes de esta tabla son los vigentes después de reescribir el historial el 2026-11-23 (§11.3). `main` local integra el Sprint 2 con el merge `cf23603`; el estado de publicación está en §11.4.
 
 ---
 
@@ -101,7 +102,7 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 **Cómo se resuelve sin perder el planteamiento original:**
 
 - El trabajo adelantado se conserva y queda marcado como **adelantado** en el tablero (§7). Sus hitos se declaran cumplidos en el sprint que les corresponde, después de completar lo que falta (medición del KDS, pantallas de administración).
-- Las rutas de administración de sprints posteriores se **comentaron en `routes/web.php` con su sprint asignado** (`191f315`) y se habilitarán al crear sus controladores. Así `route:list` funciona y el menú no enlaza pantallas inexistentes.
+- Las rutas de administración de sprints posteriores se **comentaron en `routes/web.php` con su sprint asignado** (`43aa784`) y se habilitarán al crear sus controladores. Así `route:list` funciona y el menú no enlaza pantallas inexistentes.
 - A partir de este punto solo se desarrolla lo del sprint en curso.
 
 ---
@@ -150,10 +151,25 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 | 6. Pruebas | **217 pruebas pasan, 0 fallan** (650 aserciones) en SQLite **y en MySQL**: 47 unitarias y 170 de integración. Detalle en §4. Pasan CP-01, CP-02 (rutas del Sprint 2), CP-03, CP-04, CP-05 y CP-13; CP-10 pasa además con 6 procesos concurrentes en MySQL. |
 | 7. Problemas y solución | D-01/D-15 (rutas a controladores inexistentes): rutas separadas por sprint. D-16 (un error se repetía en varios formularios): *error bags*. Usuarios con punto en el nombre rechazados por `alpha_dash`: se cambió a una expresión que acepta letras, números, punto, guion y guion bajo. Una prueba de sesiones no enviaba cookies: se usó `withCredentials()` y se reinició el singleton `StartSession`. Edge headless recorta a 390 px pero usa 496 px de viewport: las capturas de celular se toman a 500 px. **D-17:** en MySQL ninguna orden se guardaba porque el folio temporal medía 40 caracteres en una columna de 30; SQLite no lo detectaba. Se corrigió y desde entonces la suite se ejecuta también en MySQL. `composer require` quedó detenido en sus scripts posteriores: se detuvo el proceso y se regeneró el lock con `composer update --lock --no-scripts`. |
 | 8. Pendientes | (a) ~~MySQL local~~ — resuelto. (b) Correo: el SMTP de Mailtrap aceptó un envío real; falta confirmar la bandeja (M-07) y configurar el SMTP productivo (pendiente por decisión del responsable). SMS y llamada — BLOQUEADOS hasta regenerar la API Key de Twilio (M-08). (c) `push`, PR y protección de `main` — BLOQUEADO por `gh auth login` (B-31). (d) Verificaciones manuales M-01 a M-08 (§4.8). (e) ~~D-09~~ — resuelto: el empleado puede cancelar órdenes no cerradas. (f) Actualizar componentes Symfony con avisos de seguridad (D-18), pendiente de aprobación. |
-| 9. Evidencia | §4.5 (CP), §4.6 (matriz rúbrica ↔ pruebas), §4.7 (ejecuciones). Commits `dcf164c` … `fc277e9`. |
-| 10. Conclusión | **Objetivo y hito del Sprint 2 cumplidos con pruebas automatizadas.** El cierre formal queda **en revisión** hasta que el responsable ejecute las verificaciones manuales de §4.8. Los pendientes (b), (c) y (f) dependen de acciones externas o de una aprobación; no impiden el flujo del sprint, pero deben resolverse antes del Sprint 6. **No se inicia el Sprint 3 hasta confirmar este cierre.** |
+| 9. Evidencia | §4.5 (CP), §4.6 (matriz rúbrica ↔ pruebas), §4.7 (ejecuciones). Commits `43b2f4d` … `6412274`. |
+| 10. Conclusión | **Objetivo y hito del Sprint 2 cumplidos con pruebas automatizadas.** El cierre formal queda **en revisión** hasta que el responsable ejecute las verificaciones manuales de §4.8. Los pendientes (b), (c) y (f) dependen de acciones externas o de una aprobación; no impiden el flujo del sprint, pero deben resolverse antes del Sprint 6. **Cierre (2026-11-23):** el responsable indicó continuar con el desarrollo. El Sprint 2 se **cierra con el hito cumplido** y estos pendientes **trasladados al Sprint 3-4**, sin marcarlos como aprobados: verificaciones manuales M-01 a M-08, regeneración de la API Key de Twilio, SMTP productivo, actualización de Symfony (D-18) y publicación en GitHub (§11.4). Integración en `main`: merge `cf23603`. |
 
-### 3.4. Plantilla para los siguientes sprints
+### 3.4. Sprints 3 y 4 — KDS (en curso)
+
+| Campo | Registro |
+| :--- | :--- |
+| 1. Objetivo | README §17: *desarrollar vistas de preparación, filtros por estación, estados de orden y mecanismo de actualización sin recarga manual.* Hito: **la orden llega a la estación correcta y puede marcarse como lista.** |
+| 2. Planificado | T-05 (pantallas KDS por zona) y T-06 (Help Mode). Lo que falta, porque la lógica y las pantallas operativas se adelantaron en el Sprint 2 (§2): (1) administración de estaciones (B-36); (2) medición del tiempo envío → visualización, CP-07 y RNF-01 (B-23); (3) prueba de reconexión, CP-14 (B-28); (4) pendientes trasladados del Sprint 2. |
+| 3. Realizado | 2026-11-23: preparación del flujo de ramas y cierre documental del Sprint 2 (rama `docs/flujo-ramas-y-cierre-sprint-2`). |
+| 4. Funcionalidades | — |
+| 5. Archivos | `.github/pull_request_template.md`, `SEGUIMIENTO.md`, `README.md` |
+| 6. Pruebas | Sin cambios de código en este registro. |
+| 7. Problemas y solución | El filtro que quitó la coautoría también reescribió los dos commits del Sprint 1 que ya estaban en `main`; la rama del Sprint 2 se reacomodó sobre el `main` real con `git rebase --committer-date-is-author-date` y se comprobó que el árbol final es idéntico (§11.3). |
+| 8. Pendientes | B-36, B-23, B-28 y los trasladados del Sprint 2. |
+| 9. Evidencia | — |
+| 10. Conclusión | En curso. |
+
+### 3.5. Plantilla para los siguientes sprints
 
 | Campo | Registro |
 | :--- | :--- |
@@ -297,20 +313,20 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | :--- | :--- | :--- |
 | 2026-11-10 | `php artisan test --compact` (inicio) | 1 falla (`ExampleTest`: 302 ≠ 200), 1 pasa |
 | 2026-11-10 | `php artisan route:list --except-vendor` | Falla: no existe `Admin\UsuarioController` |
-| 2026-11-10 | `php artisan test --compact` (`270d1e4`) | 106 pasan, 0 fallan (322 aserciones) |
-| 2026-11-10 | `php artisan test --compact` (`aad47a7`) | 134 pasan, 0 fallan (422 aserciones) |
+| 2026-11-10 | `php artisan test --compact` (`1d0fd37`) | 106 pasan, 0 fallan (322 aserciones) |
+| 2026-11-10 | `php artisan test --compact` (`d8534d9`) | 134 pasan, 0 fallan (422 aserciones) |
 | 2026-11-10 | Capturas Edge headless (1920×1080 y 500 px) | Sin elementos encimados; POS y KDS se reacomodan en una columna en celular |
-| 2026-11-11 | `php artisan route:list --except-vendor` (`191f315`) | Funciona: 51 rutas |
-| 2026-11-11 | `php artisan test --compact` (`fc277e9`) | Primera ejecución: 4 fallas → corregidas (2 aserciones mal planteadas, regla de usuario, prueba de token); final **212 pasan, 0 fallan** (607 aserciones) |
+| 2026-11-11 | `php artisan route:list --except-vendor` (`43aa784`) | Funciona: 51 rutas |
+| 2026-11-11 | `php artisan test --compact` (`6412274`) | Primera ejecución: 4 fallas → corregidas (2 aserciones mal planteadas, regla de usuario, prueba de token); final **212 pasan, 0 fallan** (607 aserciones) |
 | 2026-11-11 | `php artisan test --compact --testsuite=Unit` | **47 pasan** (57 aserciones) |
 | 2026-11-11 | `php artisan test --compact --testsuite=Feature` | **165 pasan** (550 aserciones) |
 | 2026-11-11 | `npm run build` | Compila sin errores |
 | 2026-11-11 | `php artisan migrate:fresh --seed` en MySQL `cafesync` | 7 migraciones y 4 seeders correctos; tipos verificados en `information_schema`: `bigint unsigned`, `decimal(10,2)`, `decimal(12,3)`, `int unsigned`; 26 llaves foráneas |
 | 2026-11-11 | Suite en MySQL `cafesync_pruebas` (primera ejecución) | **43 fallan, 169 pasan**: `Data too long for column 'folio'` (D-17) |
-| 2026-11-11 | Suite en MySQL tras corregir D-17 (`e2405fc`) | **212 pasan, 0 fallan** |
+| 2026-11-11 | Suite en MySQL tras corregir D-17 (`74a463f`) | **212 pasan, 0 fallan** |
 | 2026-11-11 | Concurrencia: 6 procesos `tinker` en paralelo cierran la misma orden en MySQL | 6 terminan sin error; un solo descuento (2 movimientos); orden cerrada |
 | 2026-11-11 | Envío real de recuperación por correo (`RecuperacionPasswordService::solicitar('gerente', correo)`) con SMTP de Mailtrap | El servidor SMTP aceptó el mensaje; la solicitud quedó vigente; sin errores en el log. La recepción en la bandeja se confirma en M-07 |
-| 2026-11-11 | `php artisan test --compact` y suite en MySQL (`b74f734`) | **217 pasan, 0 fallan** (650 aserciones) en ambos gestores |
+| 2026-11-11 | `php artisan test --compact` y suite en MySQL (`20e8093`) | **217 pasan, 0 fallan** (650 aserciones) en ambos gestores |
 
 ### 4.8. Pruebas manuales pendientes del Sprint 2 (las ejecuta el responsable)
 
@@ -395,12 +411,12 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | RB-12 | OWASP | PARCIAL | XSS, CSRF, encabezados, hashes, cuentas inactivas, errores propios | `SESSION_SECURE_COOKIE`/`SESSION_ENCRYPT` en producción; revisión final (Sprint 6) |
 | RB-13 | 2–3 patrones de diseño | PARCIAL | Observer, Repository y Strategy implementados y documentados en README §13.6 | Revisión final |
 | RB-14 | Interfaz atractiva y responsiva | PARCIAL | Sistema visual, componentes, capturas | Pantallas de los sprints 3 a 6; pantalla táctil real |
-| RB-15 | GitHub Flow, PR, protección | PARCIAL / BLOQUEADO | Ramas `feature/`, commits semánticos | `gh auth login` (§8-6) |
+| RB-15 | GitHub Flow, PR, protección | PARCIAL / BLOQUEADO | Una rama por tarea con prefijos del README, commits semánticos, merges `--no-ff`, plantilla de PR con lista de revisión (`.github/pull_request_template.md`) | Crear PR y proteger `main` requiere una cuenta de `gh` con permiso de escritura (§11.4) |
 | RB-16 | Metodología y riesgos | PARCIAL | Este documento | Mantener por sprint |
 | RB-17 | Pruebas verificables (incluidas unitarias) | PARCIAL | 212 pruebas (§4) | CP-07, CP-14, CP-15; MySQL |
 | RB-18 | README refleja el estado real | PARCIAL | README actualizado al cierre del Sprint 2 (estado, ejecución, ampliaciones, decisiones, patrones) | Actualizar en cada sprint |
 | RB-19 | MySQL | **CUMPLIDO** | Base `cafesync` migrada y sembrada; 217 pruebas pasan en MySQL; concurrencia verificada | — |
-| RB-20 | `.env.example` sin secretos | **CUMPLIDO** | `76a5427`; `.env` ignorado | — |
+| RB-20 | `.env.example` sin secretos | **CUMPLIDO** | `e4a1de7`; `.env` ignorado | — |
 
 ---
 
@@ -408,23 +424,23 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 
 | ID | Severidad | Defecto | Estado |
 | :--- | :--- | :--- | :--- |
-| D-01 | Crítico | `routes/web.php` referenciaba 11 controladores inexistentes; `route:list` fallaba | **Corregido** (`191f315` + `1504e5d`): 3 controladores del Sprint 2 creados; el resto de rutas comentadas con su sprint |
-| D-02 | Crítico | No existían vistas Blade | **Corregido** para el Sprint 2 (`8790dc9`, `1504e5d`); las vistas de sprints posteriores se crearán en su sprint |
-| D-03 | Alto | Twilio sin configuración | **Corregido** (`76a5427`) |
-| D-04 | Alto | Sin pruebas de dominio | **Corregido** (`270d1e4`, `fc277e9`) |
+| D-01 | Crítico | `routes/web.php` referenciaba 11 controladores inexistentes; `route:list` fallaba | **Corregido** (`43aa784` + `44d8524`): 3 controladores del Sprint 2 creados; el resto de rutas comentadas con su sprint |
+| D-02 | Crítico | No existían vistas Blade | **Corregido** para el Sprint 2 (`983c53b`, `44d8524`); las vistas de sprints posteriores se crearán en su sprint |
+| D-03 | Alto | Twilio sin configuración | **Corregido** (`e4a1de7`) |
+| D-04 | Alto | Sin pruebas de dominio | **Corregido** (`1d0fd37`, `6412274`) |
 | D-05 | Alto | SQLite en lugar de MySQL | **Corregido** (2026-11-11): `.env` local apunta a MySQL 8.0.46; la suite corre en ambos gestores |
-| D-06 | Medio | Trabajo sin commitear; sin `push` ni PR | Parcial: todo commiteado; falta `push` y PR (§8-6, §8-7) |
-| D-07 | Medio | `.env.example` desactualizado | **Corregido** (`76a5427`) |
-| D-08 | Medio | Tokens sin vencimiento | **Corregido** (`76a5427`) |
-| D-09 | Medio | El empleado puede cancelar órdenes no cerradas | **Resuelto por decisión del responsable** (2026-11-11): es el comportamiento esperado; prueba *lets an employee cancel an order that is not closed yet* (`b74f734`) |
-| D-10 | Bajo | Mensajes de validación en inglés | **Corregido** (`98d8418`) |
+| D-06 | Medio | Trabajo sin commitear; sin `push` ni PR | Parcial: todo commiteado e integrado en `main` local (`cf23603`); falta publicar y abrir PR (§11.4) |
+| D-07 | Medio | `.env.example` desactualizado | **Corregido** (`e4a1de7`) |
+| D-08 | Medio | Tokens sin vencimiento | **Corregido** (`e4a1de7`) |
+| D-09 | Medio | El empleado puede cancelar órdenes no cerradas | **Resuelto por decisión del responsable** (2026-11-11): es el comportamiento esperado; prueba *lets an employee cancel an order that is not closed yet* (`20e8093`) |
+| D-10 | Bajo | Mensajes de validación en inglés | **Corregido** (`911abbf`) |
 | D-11 | Bajo | MFA sin QR | Requiere decisión (§8-5); se ofrece clave manual y enlace `otpauth://` |
-| D-12 | Bajo | PIN fallido detectado por texto del mensaje | **Corregido** (`76a5427`) |
-| D-13 | Bajo | `welcome.blade.php` sin uso | **Corregido** (`98d8418`) |
-| D-14 | Bajo | Sesiones vacías si el driver no es `database` | **Corregido** (`8790dc9`): la pantalla lo explica |
-| D-15 | Alto | Menú del gerente enlazaba pantallas con error 500 | **Corregido** (`191f315`): el menú solo muestra rutas registradas |
-| D-16 | Bajo | Un error de `password_actual` se repetía en todos los formularios | **Corregido** (`674b08f`): *error bags*; prueba *shows a form error only in the form that caused it* |
-| D-17 | Crítico | En MySQL ninguna orden se guardaba: el folio temporal `TMP-<uuid>` (40 caracteres) excedía `ordenes.folio` VARCHAR(30). SQLite no valida la longitud | **Corregido** (`e2405fc`): folio temporal `TMP<ULID>` de 29 caracteres; detectado al correr la suite en MySQL |
+| D-12 | Bajo | PIN fallido detectado por texto del mensaje | **Corregido** (`e4a1de7`) |
+| D-13 | Bajo | `welcome.blade.php` sin uso | **Corregido** (`911abbf`) |
+| D-14 | Bajo | Sesiones vacías si el driver no es `database` | **Corregido** (`983c53b`): la pantalla lo explica |
+| D-15 | Alto | Menú del gerente enlazaba pantallas con error 500 | **Corregido** (`43aa784`): el menú solo muestra rutas registradas |
+| D-16 | Bajo | Un error de `password_actual` se repetía en todos los formularios | **Corregido** (`5b55a44`): *error bags*; prueba *shows a form error only in the form that caused it* |
+| D-17 | Crítico | En MySQL ninguna orden se guardaba: el folio temporal `TMP-<uuid>` (40 caracteres) excedía `ordenes.folio` VARCHAR(30). SQLite no valida la longitud | **Corregido** (`74a463f`): folio temporal `TMP<ULID>` de 29 caracteres; detectado al correr la suite en MySQL |
 | D-18 | Medio | `composer audit` reporta 8 avisos de seguridad en 5 paquetes Symfony que trae Laravel (`http-foundation`, `http-kernel`, `mime`, `routing`, `yaml`); ninguno en `twilio/sdk` | Abierto — actualizar dependencias requiere aprobación (§8.2-9) |
 
 ---
@@ -436,17 +452,17 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | ID | Tarjeta | Sprint | Evidencia |
 | :--- | :--- | :---: | :--- |
 | B-00 | Especificación (README v2) | 0 | `448cd3b` |
-| B-14 | Commit del Sprint 2 en commits semánticos | 2 | `dcf164c` … `72a4533` |
-| B-16 | Base de pruebas | 2 | `270d1e4` |
-| B-17 | Sistema visual, layouts y componentes | 2 | `98d8418` |
-| B-25 | Configuración Twilio, `.env.example`, vencimiento de tokens | 2 | `76a5427` |
-| B-26 | Emisión y revocación de tokens | 2 | `1504e5d`; `TokenApiControllerTest` |
-| B-27 | Traducción `es` | 2 | `98d8418` |
-| B-33 | Administración de usuarios y roles | 2 | `1504e5d`; `UsuarioControllerTest`, `EnsureRoleTest` |
-| B-34 | Reporte de asistencias del gerente | 2 | `1504e5d`; `AsistenciaReporteControllerTest` |
-| B-35 | Pruebas unitarias de reglas de negocio | 2 | `fc277e9`; 47 pruebas |
-| B-15 | MySQL local y suite en MySQL | 2 | `e2405fc`; 217 pruebas en MySQL; concurrencia CP-10 |
-| B-40 | Twilio Verify con SDK oficial | 2 | `b0d4a90`; 7 pruebas con cliente simulado |
+| B-14 | Commit del Sprint 2 en commits semánticos | 2 | `43b2f4d` … `cd1f496` |
+| B-16 | Base de pruebas | 2 | `1d0fd37` |
+| B-17 | Sistema visual, layouts y componentes | 2 | `911abbf` |
+| B-25 | Configuración Twilio, `.env.example`, vencimiento de tokens | 2 | `e4a1de7` |
+| B-26 | Emisión y revocación de tokens | 2 | `44d8524`; `TokenApiControllerTest` |
+| B-27 | Traducción `es` | 2 | `911abbf` |
+| B-33 | Administración de usuarios y roles | 2 | `44d8524`; `UsuarioControllerTest`, `EnsureRoleTest` |
+| B-34 | Reporte de asistencias del gerente | 2 | `44d8524`; `AsistenciaReporteControllerTest` |
+| B-35 | Pruebas unitarias de reglas de negocio | 2 | `6412274`; 47 pruebas |
+| B-15 | MySQL local y suite en MySQL | 2 | `74a463f`; 217 pruebas en MySQL; concurrencia CP-10 |
+| B-40 | Twilio Verify con SDK oficial | 2 | `ded5191`; 7 pruebas con cliente simulado |
 
 ### En revisión/pruebas (falta verificación manual o un bloqueo externo)
 
@@ -509,6 +525,9 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-11 | SMS y llamada con **Twilio Verify** mediante el SDK oficial `twilio/sdk`, autenticado con API Key; el código lo genera y valida Twilio | Indicación del responsable | Se reemplazó la integración anterior con la API de mensajes y llamadas |
 | 2026-11-11 | No usar la API Key expuesta: `TWILIO_API_KEY` y `TWILIO_API_SECRET` quedan vacíos hasta regenerarlos | Indicación del responsable | Canales SMS y llamada «no disponibles» hasta entonces |
 | 2026-11-11 | El empleado puede cancelar órdenes que aún no se cierran (D-09) | Decisión del responsable | README §11.4 |
+| 2026-11-23 | Los commits solo muestran la identidad Git del responsable; se quitó del historial la línea `Co-Authored-By` agregada por el asistente | Indicación del responsable | Historial reescrito (§11.3) |
+| 2026-11-23 | Una rama por tarea, creada desde `main`, con los prefijos del README §26.1 e integrada con `--no-ff` | Indicación del responsable; GitHub Flow del README | §11.1 |
+| 2026-11-23 | Cerrar el Sprint 2 con pendientes trasladados e iniciar el Sprint 3-4 | El responsable indicó continuar con el desarrollo | §3.3, §3.4 |
 
 ### 8.2. Decisiones pendientes del responsable
 
@@ -557,3 +576,65 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-10 | Incremento 2 del Sprint 2: interfaz de los módulos operativos y 28 pruebas de pantallas; revisión con capturas de Edge headless. | 134/134 pruebas pasan; D-10, D-13 corregidos; D-15, D-16 registrados. | Administración |
 | 2026-11-11 | Revisión de la planificación (README §17) frente al código: se documentó el trabajo adelantado y se decidió limitar el desarrollo al Sprint 2. Incremento 3: rutas por sprint, usuarios y roles, reporte de asistencias, tokens, errores por formulario, 47 pruebas unitarias y pruebas de seguridad. Reestructura de este documento y actualización del README. | 212/212 pruebas pasan; D-01, D-02, D-14, D-15, D-16 corregidos; hito del Sprint 2 cumplido con pruebas automatizadas. | El responsable ejecuta M-01 a M-06 (§4.8) y resuelve §8.2; después se cierra el Sprint 2 y se abre el Sprint 3-4 (KDS) |
 | 2026-11-11 | Incremento 4 del Sprint 2 con datos del responsable: MySQL 8.0.46 (bases `cafesync` y `cafesync_pruebas`), Mailtrap y Twilio Verify con SDK oficial; confirmación de D-09. La suite en MySQL detectó D-17 (crítico) y se corrigió. Concurrencia del cierre de venta verificada con 6 procesos. Se comprobó que ningún secreto está en el historial de Git. | 217/217 pruebas pasan en SQLite y MySQL; RB-19, RNF-04 cumplidos; RB-07 en sandbox; D-05, D-09, D-17 resueltos; D-18 registrado. | Regenerar la API Key de Twilio; ejecutar M-01 a M-08; decidir D-18; cerrar el Sprint 2 |
+| 2026-11-23 | A petición del responsable: se quitó la coautoría del asistente en los 21 commits del Sprint 2 (historial reescrito localmente, código idéntico) y se adoptó una rama por tarea. Merge local del Sprint 2 en `main` (`cf23603`). Rama `docs/flujo-ramas-y-cierre-sprint-2`: plantilla de PR, §11 de control de versiones, cierre del Sprint 2 y apertura del Sprint 3-4. | 217/217 pruebas pasan antes del merge. El `push --force` de la rama reescrita lo bloqueó el sistema de permisos del asistente: queda para el responsable (§11.4). | Sprint 3-4: administración de estaciones (rama `feature/kds-administracion-estaciones`) |
+
+---
+
+## 11. Control de versiones
+
+### 11.1. Estrategia de ramas
+
+Se sigue el GitHub Flow del README §26:
+
+1. Cada tarea se hace en su propia rama, creada desde `main` y nombrada con el prefijo de su tipo: `feature/`, `fix/`, `docs/`, `test/` o `refactor/`.
+2. Los commits usan los prefijos `feat:`, `fix:`, `docs:`, `test:` y `refactor:`, y solo llevan la identidad Git del responsable.
+3. Antes de integrar se ejecutan la suite en SQLite y en MySQL, Pint y `npm run build`, y se revisa la lista de `.github/pull_request_template.md`.
+4. La integración se hace con `git merge --no-ff` para que cada rama quede visible en la historia. Cuando haya una cuenta de `gh` con permiso de escritura, la integración será por Pull Request.
+5. Cada rama actualiza `SEGUIMIENTO.md` y, si cambia el comportamiento, el README.
+
+### 11.2. Ramas
+
+| Rama | Tipo | Contenido | Estado |
+| :--- | :--- | :--- | :--- |
+| `feature/base-datos-modelos` | feature | Sprint 1: esquema, modelos y datos base | Integrada en `main` (`fcaf430`) |
+| `feature/autenticacion-seguridad` | feature | Sprint 2 completo: acceso, seguridad, POS, interfaz, pruebas, MySQL, Mailtrap, Twilio Verify. **Concentró trabajo de varios temas en una sola rama**; desde el 2026-11-23 cada tema va en su propia rama | Integrada en `main` (`cf23603`) |
+| `docs/flujo-ramas-y-cierre-sprint-2` | docs | Plantilla de PR, esta sección, cierre del Sprint 2 | En curso |
+
+### 11.3. Reescritura del historial (2026-11-23)
+
+A petición del responsable se eliminó de los mensajes de commit la línea `Co-Authored-By` que había agregado el asistente, para que solo aparezca su identidad de GitHub. Se usó `git filter-branch --msg-filter` en la rama del Sprint 2, se reacomodaron sus commits sobre el `main` real con `git rebase --committer-date-is-author-date` y se verificó que el árbol de archivos final es idéntico al anterior. Autor, fechas y contenido no cambiaron; los hashes sí:
+
+| Hash anterior | Hash actual |
+| :--- | :--- |
+| `bf5ed8e` | `6c0c3e8` |
+| `1088e83` | `b049465` |
+| `bc4e14d` | `9949a22` |
+| `a403fe2` | `ffbf0fa` |
+| `a390b0c` | `f0c54db` |
+| `a2d5de9` | `e677801` |
+| `1504e5d` | `44d8524` |
+| `dcf164c` | `43b2f4d` |
+| `98d8418` | `911abbf` |
+| `8790dc9` | `983c53b` |
+| `83890fe` | `0625b48` |
+| `b0d4a90` | `ded5191` |
+| `72a4533` | `cd1f496` |
+| `191f315` | `43aa784` |
+| `76a5427` | `e4a1de7` |
+| `e2405fc` | `74a463f` |
+| `674b08f` | `5b55a44` |
+| `aad47a7` | `d8534d9` |
+| `270d1e4` | `1d0fd37` |
+| `b74f734` | `20e8093` |
+| `fc277e9` | `6412274` |
+
+Se conserva localmente la etiqueta `respaldo/antes-de-quitar-coautoria` (no se publica) por si hiciera falta recuperar el estado previo.
+
+### 11.4. Publicación en GitHub
+
+| Elemento | Estado |
+| :--- | :--- |
+| `origin/feature/autenticacion-seguridad` | Contiene la versión **anterior** a la reescritura. Para publicar la nueva, el responsable debe ejecutar `git push --force-with-lease origin feature/autenticacion-seguridad`: el sistema de permisos del asistente bloquea los `push --force`. |
+| `origin/main` | Sin el Sprint 1 ni el Sprint 2. Publicar con `git push origin main` cuando el responsable lo decida. |
+| Pull Requests | No se pueden crear con la sesión actual de `gh` (cuenta `ElAxelYSuGit`, permiso de **lectura** sobre `AxelYYa/CafeSync`). Se requiere `gh auth login` con la cuenta propietaria. |
+| Protección de `main` | No configurada (la API respondió 404). Requiere la cuenta propietaria. La aprobación obligatoria por un segundo revisor no puede cumplirse en un proyecto individual sin un revisor autorizado. |

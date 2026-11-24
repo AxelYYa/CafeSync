@@ -1558,6 +1558,13 @@ Se proponen mensajes breves con el propósito del cambio:
 
 La rama `main` debe conservar una versión que pueda ejecutarse o, si aún está en desarrollo, dejar claramente documentado qué bloquea su ejecución. No se utilizará `git push --force` como forma rutinaria de resolver conflictos.
 
+### 26.4. Práctica aplicada en el desarrollo
+
+- Cada tarea se desarrolla en su propia rama con los prefijos de §26.1, creada desde `main`, y se integra con `git merge --no-ff` cuando la suite pasa en SQLite y en MySQL.
+- La plantilla `.github/pull_request_template.md` define la descripción, la evidencia de pruebas y la lista de revisión de cada integración.
+- Los commits solo muestran la identidad Git del responsable del proyecto.
+- El registro de ramas, merges y el estado de publicación en GitHub se lleva en `SEGUIMIENTO.md` §11.
+
 ---
 
 ## 27. Configuración y ejecución local
