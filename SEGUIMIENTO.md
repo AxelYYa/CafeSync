@@ -165,7 +165,7 @@ Al iniciar el Sprint 2 el repositorio ya tenía, sin commitear, la lógica de ne
 | 5. Archivos | `.github/pull_request_template.md`; `app/Http/Controllers/Admin/EstacionController.php`, `app/Services/Catalogo/EstacionService.php`, `resources/views/admin/estaciones/*`, `routes/web.php`, `resources/js/modulos/formularios.js`; `tests/Feature/Http/Controllers/Admin/EstacionControllerTest.php`, `tests/Feature/Http/Middleware/EnsureRoleTest.php`; `tests/Rendimiento/escenario-kds.mjs`, `tests/Rendimiento/medir-kds.mjs`, `tests/Rendimiento/probar-reconexion-kds.mjs`; `SEGUIMIENTO.md`, `README.md` |
 | 6. Pruebas | `EstacionControllerTest` (9) y 6 casos nuevos en `EnsureRoleTest`. Suite: **232 pasan** en SQLite y en MySQL (§4.7). **CP-07:** 2 series (20 y 30 órdenes), 50 de 50 visibles en menos de 1 s; p95 828 ms y 821 ms (§4.5). **CP-14:** 6 de 6 verificaciones pasan; la recuperación tras 6 s sin red tardó 4.6 s por la espera creciente entre reintentos (D-19); tras la corrección, 267–290 ms. |
 | 7. Problemas y solución | El filtro que quitó la coautoría también reescribió los dos commits del Sprint 1 que ya estaban en `main`; la rama del Sprint 2 se reacomodó sobre el `main` real con `git rebase --committer-date-is-author-date` y se comprobó que el árbol final es idéntico (§11.3). |
-| 8. Pendientes | D-20, repetir la medición con dispositivos en red local y los trasladados del Sprint 2. |
+| 8. Pendientes | Repetir CP-07 y CP-14 con dispositivos en red local y los trasladados del Sprint 2. |
 | 9. Evidencia | Merge de `feature/kds-administracion-estaciones` en `main` (§11.2); §4.4 y §4.7. |
 | 10. Conclusión | En curso. |
 
@@ -353,6 +353,7 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | 2026-11-23 | `node tests/Rendimiento/probar-reconexion-kds.mjs --desconexion=6000` | 6/6 verificaciones pasan; recuperación 4565 ms después de volver la red; orden de prueba cancelada |
 | 2026-11-23 | `node tests/Rendimiento/medir-kds.mjs --ordenes=5` (tras mover el código común a `escenario-kds.mjs`) | 5/5 bajo 1 s; p95 807 ms |
 | 2026-11-23 | `probar-reconexion-kds.mjs` ×3 con la corrección de D-19 | 6/6 en cada ejecución; recuperación 288, 267 y 286 ms |
+| 2026-11-23 | Con la corrección de D-20: `medir-kds.mjs --ordenes=3` ×3 y `probar-reconexion-kds.mjs --desconexion=3000` | Sin errores ni avisos de limpieza; p95 572, 527 y 749 ms; reconexión 6/6; sin perfiles temporales restantes |
 | 2026-11-23 | `medir-kds.mjs --ordenes=10` con la corrección de D-19; `php artisan test --filter=Kds` | Mediana 528 ms, p95 841 ms; 20 pruebas PHP del KDS pasan. El script terminó con error al borrar el perfil temporal de Edge (`EPERM`) después de medir y cancelar: D-20 |
 
 ### 4.8. Pruebas manuales pendientes del Sprint 2 (las ejecuta el responsable)
@@ -469,7 +470,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | D-16 | Bajo | Un error de `password_actual` se repetía en todos los formularios | **Corregido** (`5b55a44`): *error bags*; prueba *shows a form error only in the form that caused it* |
 | D-17 | Crítico | En MySQL ninguna orden se guardaba: el folio temporal `TMP-<uuid>` (40 caracteres) excedía `ordenes.folio` VARCHAR(30). SQLite no valida la longitud | **Corregido** (`74a463f`): folio temporal `TMP<ULID>` de 29 caracteres; detectado al correr la suite en MySQL |
 | D-19 | Bajo | Al volver la red, el KDS tardaba hasta ~6 s en recuperarse porque esperaba el siguiente reintento (la espera crece de 1.6 s a 10 s) | **Corregido** (rama `fix/kds-recuperacion-inmediata`): la pantalla escucha `offline`/`online` y consulta de inmediato al volver la red; recuperación medida 267–290 ms en 3 ejecuciones de CP-14 (antes 4565 ms) |
-| D-20 | Bajo | Los scripts de `tests/Rendimiento` terminan con error si Windows aún bloquea la carpeta temporal de Edge al borrarla, aunque la prueba haya pasado | Abierto (rama `fix/scripts-kds-limpieza-perfil`) |
+| D-20 | Bajo | Los scripts de `tests/Rendimiento` terminaban con error si Windows aún bloqueaba la carpeta temporal de Edge al borrarla, aunque la prueba hubiera pasado | **Corregido** (rama `fix/scripts-kds-limpieza-perfil`): se espera la salida de Edge, el borrado se reintenta y un fallo de limpieza solo genera un aviso; 4 ejecuciones seguidas sin error |
 | D-18 | Medio | `composer audit` reporta 8 avisos de seguridad en 5 paquetes Symfony que trae Laravel (`http-foundation`, `http-kernel`, `mime`, `routing`, `yaml`); ninguno en `twilio/sdk` | Abierto — actualizar dependencias requiere aprobación (§8.2-9) |
 
 ---
@@ -613,6 +614,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-23 | Sprint 3-4, rama `test/kds-medicion-tiempo`: script `tests/Rendimiento/medir-kds.mjs` (Edge real, protocolo DevTools, sin dependencias). Dos series: 20 y 30 órdenes. | 50/50 bajo 1 s; p95 828 y 821 ms. CP-07 pasa; RNF-01 y RF-05 cumplidos en el entorno de prueba; se descarta Reverb. | Reconexión del KDS (B-28, CP-14) |
 | 2026-11-23 | Sprint 3-4, rama `test/kds-reconexion`: script de falla de red con Edge real y módulo común `escenario-kds.mjs`. | CP-14 pasa 6/6; RNF-08 cumplido; recuperación de 4.6 s registrada como D-19. | Recuperación inmediata al volver la red (D-19, rama `fix/kds-recuperacion-inmediata`) |
 | 2026-11-23 | Rama `fix/kds-recuperacion-inmediata`: el KDS escucha `offline`/`online`; si una consulta está en curso al volver la red, la siguiente se agenda sin espera. | CP-14 6/6 en 3 ejecuciones; recuperación de 4565 ms a ~280 ms; latencia CP-07 sin cambios. Se detectó D-20. | Limpieza del perfil temporal de Edge (D-20) |
+| 2026-11-23 | Rama `fix/scripts-kds-limpieza-perfil`: D-20 corregido; README §24.5 con el resultado de la falla de red. | 4 ejecuciones de los scripts sin error. | Pendientes trasladados y repetición en red local |
 
 ---
 
@@ -638,7 +640,8 @@ Se sigue el GitHub Flow del README §26:
 | `feature/kds-administracion-estaciones` | feature | Sprint 3-4, B-36: administración de estaciones | Integrada en `main` (`b0eee18`) |
 | `test/kds-medicion-tiempo` | test | Sprint 3-4, B-23: medición del tiempo del KDS (CP-07) | Integrada en `main` (`147eb66`) |
 | `test/kds-reconexion` | test | Sprint 3-4, B-28: prueba de falla de red (CP-14) y módulo común de los scripts | Integrada en `main` (`72977c1`) |
-| `fix/kds-recuperacion-inmediata` | fix | D-19: reconsultar en cuanto vuelve la red | Integrada en `main` |
+| `fix/kds-recuperacion-inmediata` | fix | D-19: reconsultar en cuanto vuelve la red | Integrada en `main` (`32de233`) |
+| `fix/scripts-kds-limpieza-perfil` | fix | D-20: limpieza robusta del perfil temporal de Edge; resultado de CP-14 en el README | Integrada en `main` |
 
 ### 11.3. Reescritura del historial (2026-11-23)
 

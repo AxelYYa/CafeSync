@@ -1467,6 +1467,8 @@ Se validó la consulta periódica (polling) cada 800 ms con `tests/Rendimiento/m
 
 **Entorno:** Windows 11 en una sola máquina, sin red local entre dispositivos; `php artisan serve`; MySQL 8.0.46; Edge 158 headless a 1920×1080; Node 24.19.
 
+**Falla de red (CP-14):** con `tests/Rendimiento/probar-reconexion-kds.mjs` se cortó la red del navegador durante 6 s mientras se creaba una orden. La pantalla mostró «Sin conexión» y el aviso de incidencia en 0.8 s. Al volver la red regresó a «Conectado» sin recargar, en unos 0.3 s, y la orden apareció una sola vez. La pantalla reconsulta en cuanto el navegador recupera la red y, mientras no la tiene, reintenta con una espera creciente de hasta 10 s.
+
 **Decisión:** el polling cumple la meta de menos de 1 segundo en este entorno, por lo que no se incorpora Laravel Reverb. La medición debe repetirse con la caja y las pantallas en dispositivos distintos de la red local antes de la demostración final; si el p95 supera 1 s, se reducirá el intervalo o se evaluará Reverb.
 
 ---
