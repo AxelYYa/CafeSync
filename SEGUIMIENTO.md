@@ -361,6 +361,8 @@ Las pruebas de Twilio usan `tests/Fakes/ClienteHttpTwilioSimulado.php`: el SDK o
 | 2026-11-23 | `node tests/Rendimiento/medir-kds.mjs --ordenes=5` (tras mover el código común a `escenario-kds.mjs`) | 5/5 bajo 1 s; p95 807 ms |
 | 2026-11-23 | `probar-reconexion-kds.mjs` ×3 con la corrección de D-19 | 6/6 en cada ejecución; recuperación 288, 267 y 286 ms |
 | 2026-11-23 | `node tests/Rendimiento/probar-flujo-kds.mjs` | 7/7 verificaciones pasan; código de salida 0. Se mostró el aviso de limpieza del perfil temporal (D-20 sigue ocurriendo en forma de aviso) |
+| 2026-11-23 | Primer intento de terminar Edge con `taskkill /T` sobre el PID lanzado | El script no terminó (se detuvo con `timeout`: código 124) y Edge siguió activo con 13 procesos del perfil; causa: el PID era del lanzador, no del navegador |
+| 2026-11-23 | Corrección final de D-20: `probar-flujo-kds.mjs` ×3, `probar-reconexion-kds.mjs`, `medir-kds.mjs --ordenes=5` | 7/7, 7/7, 7/7, 6/6 y p95 666 ms; todos con código 0, sin avisos, 0 perfiles y 0 procesos de Edge de prueba restantes |
 | 2026-11-23 | Con la corrección de D-20: `medir-kds.mjs --ordenes=3` ×3 y `probar-reconexion-kds.mjs --desconexion=3000` | Sin errores ni avisos de limpieza; p95 572, 527 y 749 ms; reconexión 6/6; sin perfiles temporales restantes |
 | 2026-11-23 | `medir-kds.mjs --ordenes=10` con la corrección de D-19; `php artisan test --filter=Kds` | Mediana 528 ms, p95 841 ms; 20 pruebas PHP del KDS pasan. El script terminó con error al borrar el perfil temporal de Edge (`EPERM`) después de medir y cancelar: D-20 |
 
@@ -478,7 +480,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | D-16 | Bajo | Un error de `password_actual` se repetía en todos los formularios | **Corregido** (`5b55a44`): *error bags*; prueba *shows a form error only in the form that caused it* |
 | D-17 | Crítico | En MySQL ninguna orden se guardaba: el folio temporal `TMP-<uuid>` (40 caracteres) excedía `ordenes.folio` VARCHAR(30). SQLite no valida la longitud | **Corregido** (`74a463f`): folio temporal `TMP<ULID>` de 29 caracteres; detectado al correr la suite en MySQL |
 | D-19 | Bajo | Al volver la red, el KDS tardaba hasta ~6 s en recuperarse porque esperaba el siguiente reintento (la espera crece de 1.6 s a 10 s) | **Corregido** (rama `fix/kds-recuperacion-inmediata`): la pantalla escucha `offline`/`online` y consulta de inmediato al volver la red; recuperación medida 267–290 ms en 3 ejecuciones de CP-14 (antes 4565 ms) |
-| D-20 | Bajo | Los scripts de `tests/Rendimiento` terminaban con error si Windows aún bloqueaba la carpeta temporal de Edge al borrarla, aunque la prueba hubiera pasado | **Parcial** (rama `fix/scripts-kds-limpieza-perfil`): se espera la salida de Edge, el borrado se reintenta y un fallo de limpieza solo genera un aviso, así que la prueba ya no falla. En `probar-flujo-kds.mjs` el aviso reapareció y quedó la carpeta: algún proceso hijo de Edge sigue activo. Pendiente: terminar el árbol de procesos (rama `fix/scripts-kds-cerrar-procesos`) |
+| D-20 | Bajo | Los scripts de `tests/Rendimiento` terminaban con error, o dejaban Edge abierto y su carpeta temporal, porque el ejecutable lanzado solo es un **lanzador**: el navegador real tiene otro PID y sus procesos hijos retienen el perfil | **Corregido** en dos pasos: `fix/scripts-kds-limpieza-perfil` (el fallo de limpieza ya no falla la prueba) y `fix/scripts-kds-cerrar-procesos` (se cierra el WebSocket y se terminan solo los procesos de Edge que usan ese perfil). Un intento intermedio con `taskkill /T` sobre el PID del lanzador no funcionó y dejó el script sin terminar; se descartó. Verificado: 5 ejecuciones seguidas con código 0, sin avisos, sin perfiles ni procesos restantes |
 | D-18 | Medio | `composer audit` reporta 8 avisos de seguridad en 5 paquetes Symfony que trae Laravel (`http-foundation`, `http-kernel`, `mime`, `routing`, `yaml`); ninguno en `twilio/sdk` | Abierto — actualizar dependencias requiere aprobación (§8.2-9) |
 
 ---
@@ -625,6 +627,7 @@ Las pruebas automatizadas no ejecutan JavaScript en un navegador real. Antes de 
 | 2026-11-23 | Rama `fix/kds-recuperacion-inmediata`: el KDS escucha `offline`/`online`; si una consulta está en curso al volver la red, la siguiente se agenda sin espera. | CP-14 6/6 en 3 ejecuciones; recuperación de 4565 ms a ~280 ms; latencia CP-07 sin cambios. Se detectó D-20. | Limpieza del perfil temporal de Edge (D-20) |
 | 2026-11-23 | Rama `fix/scripts-kds-limpieza-perfil`: D-20 corregido; README §24.5 con el resultado de la falla de red. | 4 ejecuciones de los scripts sin error. | Pendientes trasladados y repetición en red local |
 | 2026-11-23 | Rama `test/kds-flujo-preparacion`: script que pulsa «Iniciar», «Marcar lista» y «Receta» en Edge real. | 7/7; RF-05 y RF-06 cumplidos en navegador. El aviso de limpieza reapareció: D-20 pasa a parcial. | Terminar el árbol de procesos de Edge (D-20) |
+| 2026-11-23 | Rama `fix/scripts-kds-cerrar-procesos`. El primer intento (`taskkill /T`) dejó colgado el script: se detuvo la tarea, se terminaron solo los procesos de prueba (perfil `cafesync-kds-`) y se encontró la causa (PID del lanzador). Corrección: cerrar el WebSocket y terminar los procesos de ese perfil. | D-20 corregido; 5 ejecuciones limpias. | Cierre de los Sprints 3-4 |
 
 ---
 
@@ -652,7 +655,8 @@ Se sigue el GitHub Flow del README §26:
 | `test/kds-reconexion` | test | Sprint 3-4, B-28: prueba de falla de red (CP-14) y módulo común de los scripts | Integrada en `main` (`72977c1`) |
 | `fix/kds-recuperacion-inmediata` | fix | D-19: reconsultar en cuanto vuelve la red | Integrada en `main` (`32de233`) |
 | `fix/scripts-kds-limpieza-perfil` | fix | D-20: limpieza robusta del perfil temporal de Edge; resultado de CP-14 en el README | Integrada en `main` (`9123876`) |
-| `test/kds-flujo-preparacion` | test | Flujo de preparación y Help Mode en Edge real (hito de los Sprints 3-4) | Integrada en `main` |
+| `test/kds-flujo-preparacion` | test | Flujo de preparación y Help Mode en Edge real (hito de los Sprints 3-4) | Integrada en `main` (`5472137`) |
+| `fix/scripts-kds-cerrar-procesos` | fix | D-20: cierre fiable de Edge en Windows | Integrada en `main` |
 
 ### 11.3. Reescritura del historial (2026-11-23)
 
