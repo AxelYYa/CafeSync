@@ -17,7 +17,7 @@
 > **Estado del documento:** especificación y planificación técnica. Las funciones, diagramas y tablas descritos aquí representan el diseño previsto; no deben considerarse implementados o probados hasta que exista evidencia del desarrollo.
 
 > [!TIP]
-> **Estado de implementación (11 de noviembre de 2026):** el proyecto está en el **Sprint 2 — Acceso y POS**, en revisión de cierre. El hito del sprint (*una orden puede crearse con sus productos y canal y queda almacenada*) y los requisitos de acceso de la rúbrica están implementados y cubiertos por **217 pruebas automatizadas que pasan en SQLite y en MySQL**. El correo se prueba con el sandbox SMTP de Mailtrap; el SMS y la llamada (Twilio Verify) esperan la regeneración de su API Key, y la publicación en GitHub espera acceso con `gh`. El avance real, los casos de prueba, los defectos, los riesgos y los pendientes se registran en [`SEGUIMIENTO.md`](SEGUIMIENTO.md). Las secciones agregadas en este cierre son §11.4, §13.6, §19.4, §23.16, §27.7, §27.8 y §28.4.
+> **Estado de implementación (11 de noviembre de 2026):** el proyecto está en el **Sprint 2 — Acceso y POS**, en revisión de cierre. El hito del sprint (*una orden puede crearse con sus productos y canal y queda almacenada*) y los requisitos de acceso de la rúbrica están implementados y cubiertos por **217 pruebas automatizadas que pasan en SQLite y en MySQL**. El correo se prueba con el sandbox SMTP de Mailtrap; el SMS y la llamada (Twilio Verify) esperan la regeneración de su API Key, y la publicación en GitHub espera acceso con `gh`. El avance real, los casos de prueba, los defectos, los riesgos y los pendientes se registran en [`SEGUIMIENTO.md`](SEGUIMIENTO.md). Las secciones agregadas en este cierre son §11.4, §13.6, §19.4, §23.16, §27.7, §27.8 y §28.4. En el Sprint 3-4 se agregaron §24.5 (medición del KDS) y §26.4 (práctica de ramas).
 
 | Ficha del proyecto | Información |
 | :--- | :--- |
@@ -1455,6 +1455,19 @@ El requisito inicial establece que las órdenes aparezcan rápidamente y sin rec
 - **Criterio de aceptación:** medir el tiempo desde el envío de la orden hasta su aparición en la pantalla destino, repetir las pruebas y documentar entorno, resultado y limitaciones.
 
 La aplicación no debe afirmar que funciona en tiempo real antes de validar el mecanismo elegido. La integración directa con Rappi/DiDi no está contemplada en el MVP; los pedidos de delivery se capturarán manualmente o se simularán.
+
+### 24.5. Resultado de la validación del KDS
+
+Se validó la consulta periódica (polling) cada 800 ms con `tests/Rendimiento/medir-kds.mjs`. El script abre la pantalla KDS real en Microsoft Edge con la sesión de un empleado, crea órdenes desde el POS con otra sesión y mide el tiempo entre la respuesta del servidor que confirma la orden guardada y la aparición de su tarjeta en la pantalla.
+
+| Serie | Órdenes | Bajo 1 s | Mínimo | Mediana | Promedio | p95 | Máximo |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 1 (23-nov-2026) | 20 | 20 | 243 ms | 573 ms | 528 ms | 828 ms | 831 ms |
+| 2 (23-nov-2026) | 30 | 30 | 218 ms | 550 ms | 543 ms | 821 ms | 841 ms |
+
+**Entorno:** Windows 11 en una sola máquina, sin red local entre dispositivos; `php artisan serve`; MySQL 8.0.46; Edge 158 headless a 1920×1080; Node 24.19.
+
+**Decisión:** el polling cumple la meta de menos de 1 segundo en este entorno, por lo que no se incorpora Laravel Reverb. La medición debe repetirse con la caja y las pantallas en dispositivos distintos de la red local antes de la demostración final; si el p95 supera 1 s, se reducirá el intervalo o se evaluará Reverb.
 
 ---
 
